@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Vé Của Tôi - VEXE RERE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="index.html">
+                <i class="fa-solid fa-bus-simple me-2"></i> VEXE RERE
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="index.html" class="btn btn-light rounded-pill me-2"><i class="fa-solid fa-arrow-left me-1"></i> Trang chủ</a>
+                <button class="btn btn-outline-danger rounded-pill" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h3 class="fw-bold mb-4 text-primary">Lịch Sử Đặt Vé</h3>
+        
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-secondary">
+                            <tr>
+                                <th class="p-3">Mã Vé</th>
+                                <th>Hành Trình</th>
+                                <th>Ghế</th>
+                                <th>Tổng Tiền</th>
+                                <th>Ngày Đặt</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ds-ve">
+                            <tr><td colspan="6" class="text-center p-4">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        const user = localStorage.getItem('user');
+        if(!user) window.location.href = 'login.html';
+
+        // 1. Hàm tải danh sách vé
+        async function loadVe() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/ve-xe/cua-toi`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('ds-ve');
+                
+                if(data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-5 text-muted">Bạn chưa đặt vé nào.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.forEach(ve => {
+                    const benDi = ve.maChuyen.benKhoiHanh ? ve.maChuyen.benKhoiHanh.tenBen : 'Bến Đi';
+                    const benDen = ve.maChuyen.benDen ? ve.maChuyen.benDen.tenBen : 'Bến Đến';
+                    const time = new Date(ve.maChuyen.thoiGianKhoiHanh).toLocaleString('vi-VN');
+                    const seats = Array.isArray(ve.maGhe) ? ve.maGhe.join(', ') : ve.maGhe;
+                    const gia = new Intl.NumberFormat('vi-VN').format(ve.tongTien);
+
+                    // Xử lý hiển thị trạng thái
+                    let statusBadge = '';
+                    if (ve.trangThaiThanhToan === 'DaThanhToan') {
+                        statusBadge = '<span class="badge bg-success">Đã thanh toán</span>';
+                    } else if (ve.trangThaiThanhToan === 'Huy') {
+                        statusBadge = '<span class="badge bg-danger">Đã hủy</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-warning text-dark">Chờ thanh toán</span>';
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3"><span class="badge bg-light text-dark border">#${ve._id.slice(-6).toUpperCase()}</span></td>
+                            <td>
+                                <div class="fw-bold">${benDi} <i class="fa-solid fa-arrow-right small mx-1 text-muted"></i> ${benDen}</div>
+                                <small class="text-muted">${time}</small>
+                            </td>
+                            <td><span class="badge bg-info">${seats}</span></td>
+                            <td class="fw-bold text-danger">${gia} đ</td>
+                            <td class="text-muted small">${new Date(ve.ngayDat).toLocaleDateString('vi-VN')}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                });
+
+            } catch (e) { console.error(e); }
+        }
+
+        // 2. Logic cập nhật vé mới nhất
+        async function updateLatestTicketStatus(status) {
+            try {
+                const token = localStorage.getItem('token');
+                // Lấy danh sách để tìm vé mới nhất
+                const res = await fetch(`${API_URL}/ve-xe/cua-toi`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.length > 0) {
+                    const latestTicket = data[0]; // Vé mới nhất (do sort backend)
+                    
+                    // Chỉ cập nhật nếu nó đang chờ thanh toán
+                    if (latestTicket.trangThaiThanhToan === 'ChuaThanhToan') {
+                        console.log("Đang cập nhật vé:", latestTicket._id);
+                        
+                        await fetch(`${API_URL}/ve-xe/cap-nhat-thanh-toan`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                maVe: latestTicket._id, 
+                                trangThai: status 
+                            })
+                        });
+                        console.log("Cập nhật thành công!");
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // 3. Logic xử lý VNPay Return
+        async function checkVNPayReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vnp_ResponseCode = urlParams.get('vnp_ResponseCode');
+
+            if (vnp_ResponseCode) {
+                // Xóa param trên URL để nhìn cho sạch
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                if (vnp_ResponseCode === '00') {
+                    // Bước 1: Cập nhật Database trước (Chờ cho xong)
+                    await updateLatestTicketStatus('DaThanhToan');
+                    
+                    // Bước 2: Thông báo
+                    alert("✅ Thanh toán VNPay thành công!");
+                } else {
+                    alert("❌ Thanh toán thất bại hoặc bị hủy.");
+                }
+            }
+            
+            // Bước 3: Sau khi xử lý xong xuôi (hoặc không có param) mới tải danh sách hiển thị
+            loadVe();
+        }
+
+        // --- KHỞI CHẠY ---
+        // Chỉ gọi hàm check, không gọi loadVe() riêng lẻ nữa
+        checkVNPayReturn();
+
+    </script>
+</body>
+</html>

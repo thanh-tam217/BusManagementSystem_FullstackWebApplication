@@ -1,0 +1,140 @@
+/* 1. Import Font chữ đẹp (Ubuntu/Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --primary-gradient: linear-gradient(to right, #da8cff, #9a55ff);
+    --secondary-gradient: linear-gradient(to right, #90caf9, #047edf 99%);
+    --bg-color: #f2edf3;
+    --sidebar-width: 260px;
+    --card-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Ubuntu', sans-serif;
+    background-color: var(--bg-color);
+    color: #343a40;
+}
+
+/* 2. Sidebar Lung Linh */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: #fff;
+    transition: all 0.3s;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--card-shadow);
+}
+
+.sidebar .brand-logo {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
+    color: #9a55ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.sidebar .nav-item {
+    padding: 0 20px;
+    margin-bottom: 5px;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #3e4b5b;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link i {
+    margin-right: 15px;
+    font-size: 18px;
+    color: #bba8bff5;
+}
+
+/* Hiệu ứng khi hover hoặc active */
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    color: #9a55ff;
+    background: #fcfcfc;
+}
+.sidebar .nav-link.active i {
+    color: #9a55ff;
+}
+
+/* 3. Main Content Wrapper */
+.main-panel {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    transition: all 0.3s;
+}
+
+/* 4. Navbar (Top bar) */
+.navbar {
+    background: #fff;
+    box-shadow: var(--card-shadow);
+    height: 70px;
+    padding: 0 30px;
+}
+
+.navbar .form-control {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+}
+
+/* 5. Dashboard Cards (Giống hình) */
+.card-weather {
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    color: white;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(to right, #ffbf96, #fe7096) !important;
+}
+
+.bg-gradient-info {
+    background: linear-gradient(to right, #90caf9, #047edf 99%) !important;
+}
+
+.bg-gradient-success {
+    background: linear-gradient(to right, #84d9d2, #07cdae) !important;
+}
+
+.card-weather h2 { font-weight: bold; font-size: 2.5rem; margin-bottom: 0;}
+.card-weather h5 { font-weight: normal; font-size: 1.1rem; opacity: 0.8; }
+
+/* Icon hình tròn mờ ảo trang trí */
+.card-weather .card-icon {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 100px;
+    opacity: 0.2;
+    transform: rotate(20deg);
+}
+
+/* Button đẹp */
+.btn-gradient-primary {
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: 0;
+    transition: opacity 0.3s ease; 
+}
+.btn-gradient-primary:hover {
+    opacity: 0.9;
+    color: #fff;
+}

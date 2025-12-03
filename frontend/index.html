@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEXE RERE - Hệ Thống Đặt Vé Xe Khách</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .hero-section {
+            background: linear-gradient(135deg, #9a55ff 0%, #da8cff 100%);
+            padding: 60px 0 100px; color: white; border-radius: 0 0 50px 50px; margin-bottom: 40px;
+        }
+        .search-box {
+            background: white; padding: 30px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: -60px;
+        }
+        /* Style ghế ngồi */
+        .seat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 300px; margin: 0 auto; }
+        .seat {
+            height: 40px; border: 1px solid #ddd; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;
+        }
+        .seat.selected { background: #9a55ff; color: white; border-color: #9a55ff; }
+        .seat.booked { background: #e0e0e0; color: #999; cursor: not-allowed; }
+        
+        /* Style Futa Card */
+        .futa-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 20px; transition: all 0.2s; }
+        .timeline-point { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; background: #fff; display: inline-block; }
+        .point-start { border-color: #1bcfb4; } .point-end { border-color: #fe7096; }
+        .timeline-line { border-top: 2px dotted #ccc; flex-grow: 1; margin: 0 10px; position: relative; top: -5px; }
+        
+        /* Style Payment Option */
+        .payment-option { border: 1px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.2s; }
+        .payment-option.active { border-color: #9a55ff; background-color: #fbf5ff; }
+        .payment-option img { height: 30px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="index.html"><i class="fa-solid fa-bus-simple me-2"></i> VEXE RERE</a>
+            <div class="d-flex align-items-center" id="nav-auth">
+                <a href="login.html" class="btn btn-outline-primary rounded-pill px-4">Đăng nhập</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="fw-bold mb-3">Vạn dặm bình an - Trọn niềm vui</h1>
+            <p class="lead opacity-75">Đặt vé xe khách trực tuyến nhanh chóng, tiện lợi và an toàn.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="search-box">
+                    <form id="searchForm" onsubmit="timKiemChuyen(event)">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-muted small">ĐIỂM ĐI</label>
+                                <select class="form-select border-0 bg-light fw-bold" id="diemDi"><option value="">Chọn nơi đi</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-muted small">ĐIỂM ĐẾN</label>
+                                <select class="form-select border-0 bg-light fw-bold" id="diemDen"><option value="">Chọn nơi đến</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-muted small">NGÀY ĐI</label>
+                                <input type="date" class="form-control border-0 bg-light fw-bold" id="ngayDi">
+                            </div>
+                            <div class="col-md-3 d-grid align-items-end">
+                                <button type="submit" class="btn btn-primary fw-bold py-2" style="background: linear-gradient(to right, #da8cff, #9a55ff); border:none;">TÌM CHUYẾN XE</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10" id="ket-qua-tim-kiem">
+                <div class="text-center text-muted py-5">
+                    <h5>Vui lòng chọn lộ trình để tìm chuyến xe phù hợp</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="bookingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-primary">Chọn ghế & Thanh toán</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-5 border-end text-center">
+                            <h6 class="text-muted mb-3">Sơ đồ ghế</h6>
+                            <div class="seat-grid" id="seat-map">
+                                </div>
+                            <div class="mt-3 small text-muted">
+                                <span class="me-2"><i class="fa-solid fa-square text-white border"></i> Trống</span>
+                                <span class="me-2"><i class="fa-solid fa-square text-primary"></i> Đang chọn</span>
+                                <span><i class="fa-solid fa-square text-secondary"></i> Đã bán</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-7 ps-4">
+                            <h5 id="modal-trip-info" class="fw-bold mb-2">Hành trình...</h5>
+                            <div class="alert alert-info py-2 small mb-3">
+                                <i class="fa-solid fa-clock me-1"></i> Giờ khởi hành: <span id="modal-time" class="fw-bold">--:--</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Thông tin hành khách</label>
+                                <input type="text" class="form-control mb-2" id="khach-ten" placeholder="Họ và tên">
+                                <input type="text" class="form-control" id="khach-sdt" placeholder="Số điện thoại">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Phương thức thanh toán</label>
+                                <div class="payment-option active mb-2" onclick="chonPhuongThuc(this, 'TaiQuay')">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa-solid fa-money-bill-wave text-success fs-4 me-3"></i>
+                                        <div>
+                                            <div class="fw-bold">Thanh toán tại quầy</div>
+                                            <div class="small text-muted">Giữ chỗ trong 24h</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="payment-option" onclick="chonPhuongThuc(this, 'VNPay')">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://sandbox.vnpayment.vn/paymentv2/images/assets/merchant_logo/logo.svg" alt="VNPay" class="me-3" style="width: 30px;">
+                                        <div>
+                                            <div class="fw-bold">Thanh toán qua VNPay</div>
+                                            <div class="small text-muted">Thẻ ATM, Visa, QRCode</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="paymentMethod" value="TaiQuay">
+                            </div>
+
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Ghế chọn:</span>
+                                <span class="fw-bold text-success" id="modal-seats">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Tổng tiền:</span>
+                                <h4 class="text-danger fw-bold mb-0" id="modal-total">0 đ</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" onclick="xacNhanDatVe()">Xác nhận đặt vé</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        if(user) {
+            document.getElementById('nav-auth').innerHTML = `<button class="btn btn-light rounded-pill px-3 border"><i class="fa-solid fa-user me-2"></i>${user.hoTen}</button> <button class="btn btn-outline-danger ms-2 rounded-pill" onclick="logout()">Logout</button>`;
+            document.getElementById('khach-ten').value = user.hoTen;
+        }
+
+        async function loadTinh() {
+            try {
+                const res = await fetch(`${API_URL}/tinh-thanh`);
+                const data = await res.json();
+                const opt = data.map(t => `<option value="${t._id}">${t.tenTinh}</option>`).join('');
+                document.getElementById('diemDi').innerHTML += opt;
+                document.getElementById('diemDen').innerHTML += opt;
+            } catch(e) {}
+        }
+        loadTinh();
+
+        async function timKiemChuyen(e) {
+            e.preventDefault();
+            const diemDi = document.getElementById('diemDi').value;
+            const diemDen = document.getElementById('diemDen').value;
+            const ngayDi = document.getElementById('ngayDi').value;
+            
+            if(!diemDi || !diemDen || !ngayDi) { alert('Vui lòng chọn đủ thông tin'); return; }
+
+            const res = await fetch(`${API_URL}/chuyen-xe`);
+            const all = await res.json();
+            const results = all.filter(c => {
+                if(!c.maTuyen) return false;
+                // Sửa logic so sánh ngày để tránh lệch múi giờ
+                const tripDate = new Date(c.thoiGianKhoiHanh);
+                const year = tripDate.getFullYear();
+                const month = String(tripDate.getMonth() + 1).padStart(2, '0');
+                const day = String(tripDate.getDate()).padStart(2, '0');
+                const strTripDate = `${year}-${month}-${day}`;
+
+                // So sánh ID dạng chuỗi
+                return String(c.maTuyen.diemDi) === diemDi && 
+                    String(c.maTuyen.diemDen) === diemDen && 
+                    strTripDate === ngayDi;
+            });
+
+            const container = document.getElementById('ket-qua-tim-kiem');
+            if(results.length === 0) { container.innerHTML = '<div class="text-center py-5"><h5>Không tìm thấy chuyến nào</h5></div>'; return; }
+
+            let html = '';
+            results.forEach(c => {
+                // --- PHẦN SỬA ĐỔI: TÍNH TOÁN GIỜ ĐẾN ---
+                const timeStart = new Date(c.thoiGianKhoiHanh);
+                let timeEnd;
+
+                if (c.thoiGianDuKienDen) {
+                    timeEnd = new Date(c.thoiGianDuKienDen);
+                } else {
+                    // Fallback: Nếu không có giờ đến, tự cộng thời gian chạy vào
+                    const duration = c.maTuyen.thoiGianDiChuyen || 0;
+                    timeEnd = new Date(timeStart.getTime() + duration * 60 * 60 * 1000);
+                }
+
+                const gioDi = timeStart.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+                const gioDen = timeEnd.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+                // ----------------------------------------
+
+                const gia = new Intl.NumberFormat('vi-VN').format(c.giaVe);
+                const tenBenDi = c.benKhoiHanh ? c.benKhoiHanh.tenBen : 'Bến đi';
+                const tenBenDen = c.benDen ? c.benDen.tenBen : 'Bến đến';
+                const thoiGianChay = c.maTuyen.thoiGianDiChuyen || 0;
+
+                html += `
+                <div class="futa-card p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <h3 class="fw-bold">${gioDi}</h3>
+                            <div class="badge bg-light text-dark border">${tenBenDi}</div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="small text-muted mb-1">${thoiGianChay} giờ</div>
+                            <div class="d-flex align-items-center">
+                                <div class="timeline-point point-start"></div>
+                                <div class="timeline-line"></div>
+                                <div class="timeline-point point-end"></div>
+                            </div>
+                            <div class="small text-muted mt-1">Asian/HCM</div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 class="fw-bold">${gioDen}</h3>
+                            <div class="badge bg-light text-dark border">${tenBenDen}</div>
+                        </div>
+                        <div class="col-md-3 text-end"><h4 class="text-danger fw-bold">${gia}đ</h4>
+                        <button class="btn btn-primary rounded-pill w-100" onclick="moModal('${c._id}', '${gioDi}', ${c.giaVe}, ${c.maXe.soGhe || 40}, '${tenBenDi} - ${tenBenDen}')">Chọn</button></div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- LOGIC MODAL ---
+        let currentChuyen = null;
+        let selectedSeats = [];
+
+        async function moModal(id, time, gia, soGhe, title) {
+            if(!user) { alert('Vui lòng đăng nhập'); window.location.href='login.html'; return; }
+            currentChuyen = { id, gia };
+            selectedSeats = [];
+            
+            document.getElementById('modal-trip-info').innerText = title;
+            document.getElementById('modal-time').innerText = time;
+            document.getElementById('modal-seats').innerText = '--';
+            document.getElementById('modal-total').innerText = '0 đ';
+
+            const res = await fetch(`${API_URL}/ve-xe/theo-chuyen/${id}`);
+            const booked = await res.json();
+
+            const map = document.getElementById('seat-map');
+            map.innerHTML = '';
+            for(let i=1; i<=soGhe; i++) {
+                let name = 'A' + (i<10?'0'+i:i);
+                let isBooked = booked.includes(name);
+                let div = document.createElement('div');
+                div.className = `seat ${isBooked ? 'booked' : ''}`;
+                div.innerText = name;
+                if(!isBooked) div.onclick = () => toggleSeat(div, name);
+                map.appendChild(div);
+            }
+
+            new bootstrap.Modal(document.getElementById('bookingModal')).show();
+        }
+
+        function toggleSeat(el, name) {
+            if(selectedSeats.includes(name)) {
+                selectedSeats = selectedSeats.filter(s => s !== name);
+                el.classList.remove('selected');
+            } else {
+                selectedSeats.push(name);
+                el.classList.add('selected');
+            }
+            document.getElementById('modal-seats').innerText = selectedSeats.join(', ');
+            document.getElementById('modal-total').innerText = new Intl.NumberFormat('vi-VN').format(selectedSeats.length * currentChuyen.gia) + ' đ';
+        }
+
+        function chonPhuongThuc(el, method) {
+            document.querySelectorAll('.payment-option').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('paymentMethod').value = method;
+        }
+
+        async function xacNhanDatVe() {
+            if(selectedSeats.length === 0) { alert('Chưa chọn ghế'); return; }
+            
+            const method = document.getElementById('paymentMethod').value;
+            const tongTien = selectedSeats.length * currentChuyen.gia;
+            
+            const data = {
+                maChuyen: currentChuyen.id,
+                maGhe: selectedSeats,
+                tongTien: tongTien,
+                maKhachHang: user.id,
+                tenKhach: document.getElementById('khach-ten').value,
+                sdtKhach: document.getElementById('khach-sdt').value,
+                trangThaiThanhToan: method === 'VNPay' ? 'ChuaThanhToan' : 'DaThanhToan'
+            };
+
+            const token = localStorage.getItem('token');
+            
+            try {
+                const res = await fetch(`${API_URL}/ve-xe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if(res.ok) {
+                    if (method === 'VNPay') {
+                        const payRes = await fetch(`${API_URL}/payment/create_payment_url`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                amount: tongTien,
+                                orderDescription: 'Thanh toan ve xe',
+                                bankCode: 'NCB'
+                            })
+                        });
+                        const payData = await payRes.json();
+                        window.location.href = payData.url; 
+                    } else {
+                        alert('Đặt vé thành công!');
+                        window.location.href = 've-cua-toi.html';
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch(e) { console.error(e); alert('Lỗi xử lý'); }
+        }
+    </script>
+</body>
+</html>

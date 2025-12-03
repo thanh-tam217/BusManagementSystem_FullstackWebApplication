@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Bến - Purple Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-bus me-2"></i> STATION
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="dashboard-station.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span class="menu-title">Tổng quan bến</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-xe.html">
+                    <i class="fa-solid fa-bus-simple"></i>
+                    <span class="menu-title">Quản lý xe</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-tuyen.html">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="menu-title">Quản lý tuyến xe</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-chuyen.html">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    <span class="menu-title">Lịch trình chuyến</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-nhan-vien.html">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span class="menu-title">Nhân viên</span>
+                </a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span class="menu-title">Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-panel">
+        <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
+            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
+            <div class="d-flex align-items-center ms-auto">
+                <div class="me-3 text-end">
+                    <p class="mb-0 fw-bold text-dark" id="station-admin-name">Loading...</p>
+                    <small class="text-muted">Trưởng bến</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="40">
+            </div>
+        </nav>
+
+        <div class="content-wrapper p-4">
+            <div class="page-header mb-4">
+                <h3 class="page-title fw-bold">
+                    <span class="page-title-icon bg-gradient-info text-white me-2 p-2 rounded">
+                        <i class="fa-solid fa-house-laptop"></i>
+                    </span> Dashboard Bến Xe
+                </h3>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 stretch-card grid-margin mb-3">
+                    <div class="card bg-gradient-danger card-weather text-white p-4">
+                        <div class="card-body">
+                            <i class="fa-solid fa-bus card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Tổng số xe</h5>
+                            <h2 class="mb-5" id="count-xe">0</h2>
+                            <h6 class="card-text">Xe thuộc quyền quản lý</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 stretch-card grid-margin mb-3">
+                    <div class="card bg-gradient-info card-weather text-white p-4">
+                        <div class="card-body">
+                            <i class="fa-solid fa-route card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Chuyến hôm nay</h5>
+                            <h2 class="mb-5">12</h2>
+                            <h6 class="card-text">Đang hoạt động</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 stretch-card grid-margin mb-3">
+                    <div class="card bg-gradient-success card-weather text-white p-4">
+                        <div class="card-body">
+                            <i class="fa-solid fa-money-bill-wave card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Doanh thu bến</h5>
+                            <h2 class="mb-5">5,400,000 đ</h2>
+                            <h6 class="card-text">Hôm nay</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 grid-margin">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h4 class="card-title">Xe đang hoạt động</h4>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Biển số</th>
+                                            <th>Loại xe</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-xe">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') {
+            window.location.href = '/login.html';
+        }
+        document.getElementById('station-admin-name').innerText = user.hoTen;
+
+        // Load dữ liệu Xe của bến
+        async function loadXe() {
+            try {
+                const token = localStorage.getItem('token');
+                // Gọi API lấy xe (Backend sẽ tự lọc theo bến của user này)
+                const res = await fetch(`${API_URL}/xe`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('count-xe').innerText = data.length;
+
+                    // Render bảng
+                    const table = document.getElementById('table-xe');
+                    table.innerHTML = '';
+                    data.slice(0,5).forEach(xe => {
+                        table.innerHTML += `
+                            <tr>
+                                <td><span class="fw-bold">${xe.bienSo}</span></td>
+                                <td>${xe.loaiXe}</td>
+                                <td><label class="badge badge-gradient-success">Đang chạy</label></td>
+                            </tr>
+                        `;
+                    })
+                }
+            } catch (error) { console.error(error); }
+        }
+        loadXe();
+    </script>
+</body>
+</html>

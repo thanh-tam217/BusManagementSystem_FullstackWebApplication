@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Bến Xe - Purple Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-bus-simple me-2"></i> VEXE APP
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard-system.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="menu-title">Tổng quan</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-tinh.html">
+                    <i class="fa-solid fa-city"></i>
+                    <span class="menu-title">Quản lý Tỉnh</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="quan-ly-ben.html">
+                    <i class="fa-solid fa-landmark"></i>
+                    <span class="menu-title">Quản lý Bến xe</span>
+                </a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="quan-ly-user.html">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="menu-title">Người dùng</span>
+                </a>
+            </li>
+             <li class="nav-item mt-5">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fa-solid fa-power-off"></i>
+                    <span class="menu-title">Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-panel">
+        <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
+            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
+            <div class="ms-auto d-flex align-items-center">
+                <span class="fw-bold me-2" id="user-name">Admin</span>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=9a55ff&color=fff" class="rounded-circle" width="35">
+            </div>
+        </nav>
+
+        <div class="content-wrapper p-4">
+            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+                <h3 class="page-title fw-bold">
+                    <span class="page-title-icon bg-gradient-info text-white me-2 p-2 rounded">
+                        <i class="fa-solid fa-landmark"></i>
+                    </span> Quản lý Bến Xe
+                </h3>
+                <button class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#addBenModal">
+                    <i class="fa-solid fa-plus me-1"></i> Thêm Bến Mới
+                </button>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tên Bến</th>
+                                    <th>Tỉnh Thành</th>
+                                    <th>Địa chỉ</th>
+                                    <th>SĐT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-ben">
+                                <tr><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addBenModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Thêm Bến Xe Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBenForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Bến</label>
+                            <input type="text" class="form-control" id="tenBen" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thuộc Tỉnh/Thành</label>
+                            <select class="form-select" id="select-tinh" required>
+                                <option value="">-- Chọn tỉnh --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" id="diaChi" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="soDienThoai">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-gradient-primary">Lưu lại</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
+        document.getElementById('user-name').innerText = user.hoTen;
+
+        // 1. Load danh sách Tỉnh vào Dropdown (Để lúc thêm bến thì chọn)
+        async function loadDropdownTinh() {
+            const res = await fetch(`${API_URL}/tinh-thanh`);
+            const data = await res.json();
+            const select = document.getElementById('select-tinh');
+            data.forEach(tinh => {
+                select.innerHTML += `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
+            });
+        }
+
+        // 2. Load danh sách Bến ra bảng
+        async function loadBen() {
+            const res = await fetch(`${API_URL}/ben-xe`);
+            const data = await res.json();
+            const tbody = document.getElementById('table-ben');
+            tbody.innerHTML = '';
+            
+            data.forEach(ben => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${ben.tenBen}</td>
+                        <td><span class="badge bg-inverse-info text-info">${ben.maTinh ? ben.maTinh.tenTinh : 'Unknown'}</span></td>
+                        <td>${ben.diaChi}</td>
+                        <td>${ben.soDienThoai || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. Xử lý Thêm Bến
+        document.getElementById('addBenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const data = {
+                tenBen: document.getElementById('tenBen').value,
+                maTinh: document.getElementById('select-tinh').value,
+                diaChi: document.getElementById('diaChi').value,
+                soDienThoai: document.getElementById('soDienThoai').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/ben-xe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    alert('Thêm bến thành công!');
+                    document.getElementById('addBenForm').reset();
+                    bootstrap.Modal.getInstance(document.getElementById('addBenModal')).hide();
+                    loadBen();
+                } else {
+                    alert('Lỗi khi thêm bến');
+                }
+            } catch (error) { console.error(error); }
+        });
+
+        // Chạy khi vào trang
+        loadDropdownTinh();
+        loadBen();
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bàn Làm Việc - Purple Staff</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-ticket me-2" style="color: #9a55ff;"></i> TICKET
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="dashboard.html">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span class="menu-title">Bàn làm việc</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="dat-ve.html">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span class="menu-title">Đặt vé tại quầy</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tra-cuu-ve.html">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span class="menu-title">Tra cứu vé</span>
+                </a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fa-solid fa-power-off"></i>
+                    <span class="menu-title">Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-panel">
+        <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none me-3"></i>
+                <div class="text-success fw-bold d-none d-md-block">
+                    <span class="badge badge-gradient-success rounded-pill px-3 py-2">
+                        <i class="fa-solid fa-circle fa-fade me-1" style="font-size: 8px;"></i> Đang bán vé
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="staff-name">Loading...</p>
+                    <small class="text-muted">Nhân viên bán vé</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Staff&background=1bcfb4&color=fff" class="rounded-circle shadow-sm" width="40">
+            </div>
+        </nav>
+
+        <div class="content-wrapper p-4">
+            
+            <div class="page-header mb-4">
+                <h3 class="page-title fw-bold">
+                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
+                        <i class="fa-solid fa-desktop"></i>
+                    </span> Tổng Quan Ca Làm Việc
+                </h3>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <a href="dat-ve.html" class="btn btn-gradient-primary btn-lg p-4 w-100 shadow text-start text-white border-0" style="border-radius: 15px; position: relative; overflow: hidden;">
+                        <div style="position: relative; z-index: 2;">
+                            <h2 class="mb-1"><i class="fa-solid fa-plus-circle me-3"></i> TẠO ĐƠN VÉ MỚI</h2>
+                            <div class="opacity-75">Nhấn vào đây để bắt đầu quy trình bán vé cho khách</div>
+                        </div>
+                        <i class="fa-solid fa-bus-simple" style="position: absolute; right: -20px; bottom: -30px; font-size: 150px; opacity: 0.15; transform: rotate(-20deg);"></i>
+                    </a>
+                </div>
+            </div>
+
+            <h4 class="card-title mb-3 text-muted">Hiệu suất hôm nay</h4>
+            
+            <div class="row">
+                <div class="col-md-6 stretch-card grid-margin mb-3">
+                    <div class="card bg-gradient-danger card-weather text-white p-4">
+                        <div class="card-body">
+                            <i class="fa-solid fa-ticket card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Vé đã bán hôm nay</h5>
+                            <h2 class="mb-5" id="ve-hom-nay">0</h2>
+                            <h6 class="card-text">Vé hợp lệ</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 stretch-card grid-margin mb-3">
+                    <div class="card bg-gradient-success card-weather text-white p-4">
+                        <div class="card-body">
+                            <i class="fa-solid fa-wallet card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Doanh thu cá nhân</h5>
+                            <h2 class="mb-5" id="tien-hom-nay">0 đ</h2>
+                            <h6 class="card-text">Tiền mặt tại quầy</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        // Check quyền
+        if (!isLoggedIn() || (user.vaiTro !== 'NhanVienBanVe' && user.vaiTro !== 'AdminHeThong' && user.vaiTro !== 'AdminBenXe')) {
+             window.location.href = '/login.html';
+        }
+        document.getElementById('staff-name').innerText = user.hoTen;
+
+        // Load thống kê
+        async function loadThongKe() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/ve-xe/tra-cuu`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const data = await res.json();
+                
+                // Lọc vé do mình bán & Bán hôm nay
+                const today = new Date().toDateString();
+                const myTickets = data.filter(v => 
+                    v.maNhanVienBan === user.id && 
+                    new Date(v.ngayDat).toDateString() === today
+                );
+
+                document.getElementById('ve-hom-nay').innerText = myTickets.length;
+                
+                const total = myTickets.reduce((sum, v) => sum + v.tongTien, 0);
+                document.getElementById('tien-hom-nay').innerText = new Intl.NumberFormat('vi-VN').format(total) + ' đ';
+
+            } catch (error) { console.error(error); }
+        }
+
+        loadThongKe();
+    </script>
+</body>
+</html>
