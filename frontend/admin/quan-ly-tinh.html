@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> VEXE APP
+            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -21,25 +21,36 @@
                     <span class="menu-title">Tổng quan</span>
                 </a>
             </li>
+            
             <li class="nav-item">
                 <a class="nav-link active" href="quan-ly-tinh.html">
                     <i class="fa-solid fa-city"></i>
                     <span class="menu-title">Quản lý Tỉnh</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-ben.html">
                     <i class="fa-solid fa-landmark"></i>
                     <span class="menu-title">Quản lý Bến xe</span>
                 </a>
             </li>
-             <li class="nav-item">
+
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-tuyen.html">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="menu-title">Quản lý Tuyến</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link" href="quan-ly-user.html">
                     <i class="fa-solid fa-users"></i>
                     <span class="menu-title">Người dùng</span>
                 </a>
             </li>
-             <li class="nav-item mt-5">
+
+            <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
                     <i class="fa-solid fa-power-off"></i>
                     <span class="menu-title">Đăng xuất</span>
@@ -49,22 +60,33 @@
     </nav>
 
     <div class="main-panel">
+        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="fw-bold me-2" id="user-name">Admin</span>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=9a55ff&color=fff" class="rounded-circle" width="35">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Tìm kiếm tỉnh thành...">
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
+                    <small class="text-muted">Quản trị viên</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=System+Admin&background=9a55ff&color=fff" class="rounded-circle" width="40">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
+            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
                     <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-city"></i>
                     </span> Quản lý Tỉnh Thành
                 </h3>
-                <button class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Thêm Tỉnh Mới
                 </button>
             </div>
@@ -91,21 +113,22 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal fade" id="tinhModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Thêm Tỉnh Thành Mới</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Tỉnh Thành Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addForm">
+                    <form id="tinhForm">
+                        <input type="hidden" id="tinhId">
                         <div class="mb-3">
                             <label class="form-label">Tên Tỉnh / Thành phố</label>
                             <input type="text" class="form-control" id="tenTinh" required placeholder="Ví dụ: Hà Nội">
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary">Lưu lại</button>
+                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Lưu lại</button>
                         </div>
                     </form>
                 </div>
@@ -117,27 +140,34 @@
     <script src="../assets/js/main.js"></script>
     
     <script>
-        // 1. Check Login
+        // Check quyền
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
+        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') {
+            window.location.href = '/login.html';
+        }
         document.getElementById('user-name').innerText = user.hoTen;
 
-        // 2. Hàm Load danh sách Tỉnh
+        let allTinh = [];
+
+        // 1. Load danh sách Tỉnh
         async function loadTinh() {
             try {
                 const res = await fetch(`${API_URL}/tinh-thanh`);
-                const data = await res.json();
+                allTinh = await res.json();
                 
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '';
 
-                data.forEach((item, index) => {
+                allTinh.forEach((item, index) => {
                     tbody.innerHTML += `
                         <tr>
                             <td>${index + 1}</td>
                             <td class="fw-bold text-primary">${item.tenTinh}</td>
                             <td>${new Date(item.createdAt).toLocaleDateString('vi-VN')}</td>
                             <td>
+                                <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${item._id}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
                                 <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
@@ -145,46 +175,66 @@
                         </tr>
                     `;
                 });
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        // 3. Hàm Thêm Tỉnh Mới
-        document.getElementById('addForm').addEventListener('submit', async (e) => {
+        // 2. Mở Modal Thêm
+        window.openAddModal = function() {
+            document.getElementById('tinhForm').reset();
+            document.getElementById('tinhId').value = '';
+            document.getElementById('modalTitle').innerText = 'Thêm Tỉnh Mới';
+            document.getElementById('btnSave').innerText = 'Lưu lại';
+            new bootstrap.Modal(document.getElementById('tinhModal')).show();
+        }
+
+        // 3. Mở Modal Sửa (Giả lập frontend, cần API PUT để hoạt động thật)
+        window.openEditModal = function(id) {
+            const item = allTinh.find(t => t._id === id);
+            if (!item) return;
+            
+            document.getElementById('tinhId').value = item._id;
+            document.getElementById('tenTinh').value = item.tenTinh;
+            document.getElementById('modalTitle').innerText = 'Cập Nhật Tỉnh';
+            document.getElementById('btnSave').innerText = 'Cập nhật';
+            new bootstrap.Modal(document.getElementById('tinhModal')).show();
+        }
+
+        // 4. Xử lý Submit
+        document.getElementById('tinhForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('tinhId').value;
             const tenTinh = document.getElementById('tenTinh').value;
             const token = localStorage.getItem('token');
 
+            let url = `${API_URL}/tinh-thanh`;
+            let method = 'POST';
+            
+            // Nếu có ID thì là Sửa (Cần bạn viết thêm API PUT bên backend)
+            if (id) {
+                // url = `${API_URL}/tinh-thanh/${id}`;
+                // method = 'PUT';
+                alert("Bạn chưa viết API Cập nhật Tỉnh bên Backend. Hiện tại chỉ thêm mới được thôi!");
+                return;
+            }
+
             try {
-                const res = await fetch(`${API_URL}/tinh-thanh`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Quan trọng: Gửi Token Admin
-                    },
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ tenTinh })
                 });
 
                 if (res.ok) {
-                    alert('Thêm thành công!');
-                    document.getElementById('tenTinh').value = ''; // Xóa trắng ô nhập
-                    
-                    // Đóng Modal (Dùng Bootstrap API)
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
-                    modal.hide();
-
-                    loadTinh(); // Tải lại bảng
+                    alert('Thao tác thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('tinhModal')).hide();
+                    loadTinh();
                 } else {
                     const err = await res.json();
                     alert(err.message);
                 }
-            } catch (error) {
-                alert('Lỗi kết nối!');
-            }
+            } catch (error) { alert('Lỗi kết nối!'); }
         });
 
-        // Chạy ngay khi vào trang
         loadTinh();
     </script>
 </body>

@@ -12,39 +12,44 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus me-2"></i> STATION
+            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link" href="dashboard-station.html">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span class="menu-title">Tổng quan bến</span>
+                <a class="nav-link" href="dashboard-system.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="menu-title">Tổng quan</span>
                 </a>
             </li>
+            
             <li class="nav-item">
-                <a class="nav-link" href="quan-ly-xe.html">
-                    <i class="fa-solid fa-bus-simple"></i>
-                    <span class="menu-title">Đội xe</span>
+                <a class="nav-link" href="quan-ly-tinh.html">
+                    <i class="fa-solid fa-city"></i>
+                    <span class="menu-title">Quản lý Tỉnh</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-ben.html">
+                    <i class="fa-solid fa-landmark"></i>
+                    <span class="menu-title">Quản lý Bến xe</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link active" href="quan-ly-tuyen.html">
                     <i class="fa-solid fa-map-location-dot"></i>
-                    <span class="menu-title">Tuyến đường</span>
+                    <span class="menu-title">Quản lý Tuyến</span>
                 </a>
             </li>
+
             <li class="nav-item">
-                <a class="nav-link" href="quan-ly-chuyen.html">
-                    <i class="fa-regular fa-calendar-check"></i>
-                    <span class="menu-title">Lịch trình chuyến</span>
+                <a class="nav-link" href="quan-ly-user.html">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="menu-title">Người dùng</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="quan-ly-nhan-vien.html">
-                    <i class="fa-solid fa-user-tie"></i>
-                    <span class="menu-title">Nhân viên</span>
-                </a>
-            </li>
+
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
                     <i class="fa-solid fa-power-off"></i>
@@ -55,22 +60,33 @@
     </nav>
 
     <div class="main-panel">
+        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="fw-bold me-2" id="user-name">Trưởng bến</span>
-                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="35">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Tìm kiếm tuyến xe...">
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
+                    <small class="text-muted">Quản trị viên</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=System+Admin&background=9a55ff&color=fff" class="rounded-circle" width="40">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
+            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
                     <span class="page-title-icon bg-gradient-info text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-map-location-dot"></i>
                     </span> Quản lý Tuyến Đường
                 </h3>
-                <button class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#addTuyenModal">
+                <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Thêm Tuyến Mới
                 </button>
             </div>
@@ -81,14 +97,14 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Tên Tuyến</th>
+                                    <th>Tên Tuyến (Đi - Đến)</th>
                                     <th>Thời gian</th>
                                     <th>Quãng đường</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="table-tuyen">
-                                <tr><td colspan="4">Loading...</td></tr>
+                                <tr><td colspan="4" class="text-center">Đang tải dữ liệu...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -97,29 +113,32 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addTuyenModal" tabindex="-1">
+    <div class="modal fade" id="tuyenModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Thêm Tuyến Xe Mới</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Tuyến Xe Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addTuyenForm">
+                    <form id="tuyenForm">
+                        <input type="hidden" id="tuyenId">
+                        
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Điểm Đi (Tỉnh)</label>
                                 <select class="form-select" id="diemDi" required>
                                     <option value="">-- Chọn --</option>
-                                    </select>
+                                </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Điểm Đến (Tỉnh)</label>
                                 <select class="form-select" id="diemDen" required>
                                     <option value="">-- Chọn --</option>
-                                    </select>
+                                </select>
                             </div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Thời gian (Giờ)</label>
@@ -130,8 +149,9 @@
                                 <input type="number" class="form-control" id="quangDuong" required placeholder="VD: 300">
                             </div>
                         </div>
+                        
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary">Lưu Tuyến</button>
+                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Lưu lại</button>
                         </div>
                     </form>
                 </div>
@@ -141,29 +161,28 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/main.js"></script>
+    
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
-        // Check quyền
-        if (!isLoggedIn() || (user.vaiTro !== 'AdminBenXe' && user.vaiTro !== 'AdminHeThong')) {
-             window.location.href = '/login.html';
-        }
+        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
         document.getElementById('user-name').innerText = user.hoTen;
 
-        // 1. Load danh sách Tỉnh vào 2 cái Dropdown (Điểm Đi & Điểm Đến)
-        async function loadTinhDropdown() {
+        let allTuyen = [];
+
+        // 1. Load danh sách Tỉnh vào 2 Dropdown
+        async function loadDropdownTinh() {
             try {
                 const res = await fetch(`${API_URL}/tinh-thanh`);
                 const data = await res.json();
-                
                 const selectDi = document.getElementById('diemDi');
                 const selectDen = document.getElementById('diemDen');
-
+                
                 data.forEach(tinh => {
                     const option = `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
                     selectDi.innerHTML += option;
                     selectDen.innerHTML += option;
                 });
-            } catch (error) { console.error(error); }
+            } catch (e) { console.error(e); }
         }
 
         // 2. Load danh sách Tuyến Xe
@@ -173,32 +192,69 @@
                 const res = await fetch(`${API_URL}/tuyen-xe`, {
                      headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await res.json();
+                allTuyen = await res.json();
+                
                 const tbody = document.getElementById('table-tuyen');
                 tbody.innerHTML = '';
                 
-                data.forEach(tuyen => {
+                allTuyen.forEach(tuyen => {
+                    const tenDi = tuyen.diemDi ? tuyen.diemDi.tenTinh : '<span class="text-danger">Unknown</span>';
+                    const tenDen = tuyen.diemDen ? tuyen.diemDen.tenTinh : '<span class="text-danger">Unknown</span>';
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold text-primary">
-                                ${tuyen.diemDi.tenTinh} <i class="fa-solid fa-arrow-right mx-2 text-muted"></i> ${tuyen.diemDen.tenTinh}
+                                ${tenDi} <i class="fa-solid fa-arrow-right mx-2 text-muted"></i> ${tenDen}
                             </td>
                             <td>${tuyen.thoiGianDiChuyen} giờ</td>
                             <td>${tuyen.quangDuong} km</td>
                             <td>
-                                <button class="btn btn-sm btn-inverse-danger" onclick="alert('Chức năng xóa đang phát triển')">
+                                <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${tuyen._id}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
-            } catch (error) { console.error(error); }
+            } catch (e) { console.error(e); }
         }
 
-        // 3. Xử lý Thêm Tuyến
-        document.getElementById('addTuyenForm').addEventListener('submit', async (e) => {
+        // 3. Mở Modal Thêm
+        window.openAddModal = function() {
+            document.getElementById('tuyenForm').reset();
+            document.getElementById('tuyenId').value = '';
+            document.getElementById('modalTitle').innerText = 'Thêm Tuyến Mới';
+            document.getElementById('btnSave').innerText = 'Lưu lại';
+            new bootstrap.Modal(document.getElementById('tuyenModal')).show();
+        }
+
+        // 4. Mở Modal Sửa
+        window.openEditModal = function(id) {
+            const tuyen = allTuyen.find(t => t._id === id);
+            if (!tuyen) return;
+
+            document.getElementById('tuyenId').value = tuyen._id;
+            // Chọn đúng tỉnh trong dropdown (lưu ý: diemDi là object)
+            if(tuyen.diemDi) document.getElementById('diemDi').value = tuyen.diemDi._id;
+            if(tuyen.diemDen) document.getElementById('diemDen').value = tuyen.diemDen._id;
+            
+            document.getElementById('thoiGian').value = tuyen.thoiGianDiChuyen;
+            document.getElementById('quangDuong').value = tuyen.quangDuong;
+
+            document.getElementById('modalTitle').innerText = 'Cập Nhật Tuyến';
+            document.getElementById('btnSave').innerText = 'Cập nhật';
+            new bootstrap.Modal(document.getElementById('tuyenModal')).show();
+        }
+
+        // 5. Xử lý Submit
+        document.getElementById('tuyenForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('tuyenId').value;
+            const token = localStorage.getItem('token');
+            
             const diemDi = document.getElementById('diemDi').value;
             const diemDen = document.getElementById('diemDen').value;
             
@@ -207,7 +263,6 @@
                 return;
             }
 
-            const token = localStorage.getItem('token');
             const data = {
                 diemDi: diemDi,
                 diemDen: diemDen,
@@ -215,9 +270,19 @@
                 quangDuong: document.getElementById('quangDuong').value
             };
 
+            let url = `${API_URL}/tuyen-xe`;
+            let method = 'POST';
+
+            if (id) {
+                // url += `/${id}`;
+                // method = 'PUT';
+                alert("Bạn cần viết API Cập nhật Tuyến bên Backend trước!");
+                return;
+            }
+
             try {
-                const res = await fetch(`${API_URL}/tuyen-xe`, {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -226,9 +291,8 @@
                 });
 
                 if (res.ok) {
-                    alert('Thêm tuyến thành công!');
-                    document.getElementById('addTuyenForm').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addTuyenModal')).hide();
+                    alert('Lưu thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('tuyenModal')).hide();
                     loadTuyen();
                 } else {
                     const err = await res.json();
@@ -237,7 +301,7 @@
             } catch (error) { console.error(error); }
         });
 
-        loadTinhDropdown();
+        loadDropdownTinh();
         loadTuyen();
     </script>
 </body>

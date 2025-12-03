@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> VEXE APP
+            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -21,25 +21,36 @@
                     <span class="menu-title">Tổng quan</span>
                 </a>
             </li>
+            
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-tinh.html">
                     <i class="fa-solid fa-city"></i>
                     <span class="menu-title">Quản lý Tỉnh</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-ben.html">
                     <i class="fa-solid fa-landmark"></i>
                     <span class="menu-title">Quản lý Bến xe</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-tuyen.html">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="menu-title">Quản lý Tuyến</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link active" href="quan-ly-user.html">
                     <i class="fa-solid fa-users"></i>
                     <span class="menu-title">Người dùng</span>
                 </a>
             </li>
-             <li class="nav-item mt-5">
+
+            <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
                     <i class="fa-solid fa-power-off"></i>
                     <span class="menu-title">Đăng xuất</span>
@@ -49,22 +60,33 @@
     </nav>
 
     <div class="main-panel">
+        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="fw-bold me-2" id="user-name">Admin</span>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=9a55ff&color=fff" class="rounded-circle" width="35">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Tìm kiếm người dùng...">
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
+                    <small class="text-muted">Quản trị viên</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=System+Admin&background=9a55ff&color=fff" class="rounded-circle" width="40">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
+            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
                     <span class="page-title-icon bg-gradient-success text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-users"></i>
                     </span> Quản lý Tài Khoản
                 </h3>
-                <button class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-user-plus me-1"></i> Tạo tài khoản mới
                 </button>
             </div>
@@ -83,7 +105,7 @@
                                 </tr>
                             </thead>
                             <tbody id="table-users">
-                                <tr><td colspan="5">Loading...</td></tr>
+                                <tr><td colspan="5" class="text-center">Đang tải dữ liệu...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -96,7 +118,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Tạo Tài Khoản Mới</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Tạo Tài Khoản Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -133,11 +155,11 @@
                             <label class="form-label text-primary fw-bold">Chọn bến xe quản lý:</label>
                             <select class="form-select" id="maBenQuanLy">
                                 <option value="">-- Chọn bến --</option>
-                                </select>
+                            </select>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary">Tạo tài khoản</button>
+                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Tạo tài khoản</button>
                         </div>
                     </form>
                 </div>
@@ -147,6 +169,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/main.js"></script>
+    
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
@@ -154,49 +177,52 @@
 
         // 1. Load danh sách User
         async function loadUsers() {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/users`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            const tbody = document.getElementById('table-users');
-            tbody.innerHTML = '';
-            
-            data.forEach(u => {
-                // Tô màu badge cho đẹp
-                let badgeClass = 'bg-secondary';
-                if(u.vaiTro === 'AdminHeThong') badgeClass = 'bg-danger';
-                if(u.vaiTro === 'AdminBenXe') badgeClass = 'bg-warning text-dark';
-                if(u.vaiTro === 'KhachHang') badgeClass = 'bg-info text-dark';
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('table-users');
+                tbody.innerHTML = '';
+                
+                data.forEach(u => {
+                    let badgeClass = 'bg-secondary';
+                    if(u.vaiTro === 'AdminHeThong') badgeClass = 'bg-danger';
+                    if(u.vaiTro === 'AdminBenXe') badgeClass = 'bg-warning text-dark';
+                    if(u.vaiTro === 'KhachHang') badgeClass = 'bg-info text-dark';
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${u.hoTen}</td>
-                        <td>${u.email}</td>
-                        <td><span class="badge ${badgeClass}">${u.vaiTro}</span></td>
-                        <td>${u.maBenQuanLy ? u.maBenQuanLy.tenBen : '-'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-inverse-danger" onclick="deleteUser('${u._id}')">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">${u.hoTen}</td>
+                            <td>${u.email}</td>
+                            <td><span class="badge ${badgeClass}">${u.vaiTro}</span></td>
+                            <td>${u.maBenQuanLy ? u.maBenQuanLy.tenBen : '-'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-inverse-danger" onclick="deleteUser('${u._id}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) { console.error(error); }
         }
 
-        // 2. Load danh sách Bến vào Dropdown (để gán cho Admin Bến)
+        // 2. Load danh sách Bến vào Dropdown
         async function loadBenDropdown() {
-            const res = await fetch(`${API_URL}/ben-xe`);
-            const data = await res.json();
-            const select = document.getElementById('maBenQuanLy');
-            data.forEach(ben => {
-                select.innerHTML += `<option value="${ben._id}">${ben.tenBen}</option>`;
-            });
+            try {
+                const res = await fetch(`${API_URL}/ben-xe`);
+                const data = await res.json();
+                const select = document.getElementById('maBenQuanLy');
+                data.forEach(ben => {
+                    select.innerHTML += `<option value="${ben._id}">${ben.tenBen}</option>`;
+                });
+            } catch (error) { console.error(error); }
         }
 
         // 3. Logic Ẩn/Hiện ô chọn bến
-        function toggleBenSelect() {
+        window.toggleBenSelect = function() {
             const role = document.getElementById('vaiTro').value;
             const group = document.getElementById('group-chon-ben');
             if (role === 'AdminBenXe') {
@@ -206,7 +232,16 @@
             }
         }
 
-        // 4. Xử lý tạo User
+        // 4. Mở Modal Thêm
+        window.openAddModal = function() {
+            document.getElementById('addUserForm').reset();
+            document.getElementById('modalTitle').innerText = 'Tạo Tài Khoản Mới';
+            document.getElementById('btnSave').innerText = 'Tạo tài khoản';
+            document.getElementById('group-chon-ben').style.display = 'none'; // Reset trạng thái ẩn
+            new bootstrap.Modal(document.getElementById('addUserModal')).show();
+        }
+
+        // 5. Xử lý tạo User
         document.getElementById('addUserForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('token');
@@ -242,7 +277,7 @@
             } catch (error) { console.error(error); }
         });
         
-        // 5. Hàm xóa user
+        // 6. Hàm xóa user
         async function deleteUser(id) {
             if(!confirm('Bạn có chắc chắn muốn xóa user này?')) return;
             const token = localStorage.getItem('token');

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Purple Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -14,33 +15,44 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2">THT BUSLINE</i> 
+            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
                 <a class="nav-link active" href="dashboard-system.html">
                     <i class="fa-solid fa-house"></i>
-                    <span class="menu-title">Dashboard</span>
+                    <span class="menu-title">Tổng quan</span>
                 </a>
             </li>
+            
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-tinh.html">
                     <i class="fa-solid fa-city"></i>
                     <span class="menu-title">Quản lý Tỉnh</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-ben.html">
                     <i class="fa-solid fa-landmark"></i>
                     <span class="menu-title">Quản lý Bến xe</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="quan-ly-tuyen.html">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="menu-title">Quản lý Tuyến</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-user.html">
                     <i class="fa-solid fa-users"></i>
                     <span class="menu-title">Người dùng</span>
                 </a>
             </li>
+
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
                     <i class="fa-solid fa-power-off"></i>
@@ -57,37 +69,36 @@
                 <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
                 <div class="input-group">
                     <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm dự án...">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
             <div class="d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
-                    <p class="mb-0 fw-bold text-dark" id="user-name">Admin Name</p>
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
                     <small class="text-muted">Quản trị viên</small>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=9a55ff&color=fff" alt="profile" class="rounded-circle" width="40" height="40">
+                <img src="https://ui-avatars.com/api/?name=System+Admin&background=9a55ff&color=fff" class="rounded-circle" width="40">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
             
-            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+            <div class="page-header mb-4">
                 <h3 class="page-title fw-bold">
                     <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-chart-line"></i>
                     </span> Thống kê hệ thống
                 </h3>
-                
             </div>
 
             <div class="row">
                 <div class="col-md-4 stretch-card grid-margin mb-3">
                     <div class="card bg-gradient-danger card-weather text-white p-4">
                         <div class="card-body">
-                            <i class="fa-solid fa-chart-pie card-icon"></i>
-                            <h5 class="font-weight-normal mb-3">Doanh thu tuần</h5>
-                            <h2 class="mb-5">15,000,000 đ</h2>
-                            <h6 class="card-text">Tăng 60% so với tuần trước</h6>
+                            <i class="fa-solid fa-map card-icon"></i>
+                            <h5 class="font-weight-normal mb-3">Tổng số Tỉnh Thành</h5>
+                            <h2 class="mb-5" id="count-tinh">0</h2>
+                            <h6 class="card-text">Khu vực hoạt động</h6>
                         </div>
                     </div>
                 </div>
@@ -95,9 +106,9 @@
                     <div class="card bg-gradient-info card-weather text-white p-4">
                         <div class="card-body">
                             <i class="fa-solid fa-bus card-icon"></i>
-                            <h5 class="font-weight-normal mb-3">Số lượng Bến xe</h5>
-                            <h2 class="mb-5" id="count-ben">Loading...</h2>
-                            <h6 class="card-text">Hoạt động ổn định</h6>
+                            <h5 class="font-weight-normal mb-3">Tổng số Bến xe</h5>
+                            <h2 class="mb-5" id="count-ben">0</h2>
+                            <h6 class="card-text">Đang hoạt động</h6>
                         </div>
                     </div>
                 </div>
@@ -105,55 +116,49 @@
                     <div class="card bg-gradient-success card-weather text-white p-4">
                         <div class="card-body">
                             <i class="fa-solid fa-users card-icon"></i>
-                            <h5 class="font-weight-normal mb-3">Khách hàng Online</h5>
-                            <h2 class="mb-5">95,574</h2>
-                            <h6 class="card-text">Tăng 5%</h6>
+                            <h5 class="font-weight-normal mb-3">Tổng người dùng</h5>
+                            <h2 class="mb-5" id="count-user">0</h2>
+                            <h6 class="card-text">Bao gồm Admin Bến & Khách</h6>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- <div class="row mt-4">
-                <div class="col-md-7 grid-margin stretch-card">
+            <div class="row mt-4">
+                <div class="col-12 grid-margin stretch-card">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
-                            <h4 class="card-title mb-4">Lịch trình xe chạy</h4>
+                            <h4 class="card-title mb-4">Danh sách Bến xe mới</h4>
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Bến xe</th>
-                                            <th>Tỉnh</th>
+                                            <th>Tên Bến</th>
+                                            <th>Tỉnh / Thành phố</th>
                                             <th>Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody id="table-ben-xe">
-                                        </tbody>
+                                        <tr><td colspan="4">Loading...</td></tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5 grid-margin stretch-card">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <h4 class="card-title">Phân bổ người dùng</h4>
-                            <canvas id="traffic-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
+            </div>
 
         </div>
-        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="../assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <script src="../assets/js/main.js"></script>
     <script>
-        // --- LOGIC JS GIỮ NGUYÊN NHƯ CŨ, CHỈ THÊM PHẦN VẼ BIỂU ĐỒ ---
+        // Check quyền đăng nhập
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') {
-            window.location.href = '/login.html';
+            window.location.href = '/frontend/login.html';
         }
         document.getElementById('user-name').innerText = user.hoTen;
 
@@ -164,16 +169,37 @@
                 const dataBen = await resBen.json();
                 document.getElementById('count-ben').innerText = dataBen.length;
 
-                // 2. Đổ dữ liệu vào bảng (Demo 5 dòng đầu)
+                // 2. Lấy thống kê Tỉnh
+                const resTinh = await fetch(`${API_URL}/tinh-thanh`);
+                const dataTinh = await resTinh.json();
+                document.getElementById('count-tinh').innerText = dataTinh.length;
+
+                // 3. Lấy thống kê User (Cần API users)
+                // Lưu ý: Cần đảm bảo token có quyền gọi API này
+                const token = localStorage.getItem('token');
+                const resUser = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (resUser.ok) {
+                    const dataUser = await resUser.json();
+                    document.getElementById('count-user').innerText = dataUser.length;
+                }
+
+                // 4. Đổ dữ liệu vào bảng (Top 5 bến)
                 const tableBody = document.getElementById('table-ben-xe');
                 tableBody.innerHTML = '';
-                dataBen.slice(0, 5).forEach((ben, index) => {
+                
+                // Đảo ngược để lấy bến mới nhất lên đầu
+                const recentBen = dataBen.slice().reverse().slice(0, 5);
+                
+                recentBen.forEach((ben, index) => {
+                    const tenTinh = ben.maTinh ? ben.maTinh.tenTinh : '<span class="text-muted">Chưa gán</span>';
                     tableBody.innerHTML += `
                         <tr>
                             <td>${index + 1}</td>
-                            <td>${ben.tenBen}</td>
-                            <td>${ben.maTinh ? ben.maTinh.tenTinh : 'N/A'}</td>
-                            <td><label class="badge badge-gradient-success text-success bg-opacity-10">Hoạt động</label></td>
+                            <td class="fw-bold text-primary">${ben.tenBen}</td>
+                            <td>${tenTinh}</td>
+                            <td><label class="badge badge-gradient-success">Hoạt động</label></td>
                         </tr>
                     `;
                 });
@@ -184,20 +210,6 @@
         }
         
         loadData();
-
-        // 3. Vẽ biểu đồ tròn (Demo Chart.js)
-        const ctx = document.getElementById('traffic-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Khách hàng', 'Nhân viên', 'Tài xế'],
-                datasets: [{
-                    data: [30, 10, 5],
-                    backgroundColor: ['#b66dff', '#1bcfb4', '#fed713']
-                }]
-            },
-            options: { cutout: '70%' }
-        });
     </script>
 </body>
 </html>

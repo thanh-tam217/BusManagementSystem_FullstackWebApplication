@@ -24,15 +24,10 @@
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-xe.html">
                     <i class="fa-solid fa-bus-simple"></i>
-                    <span class="menu-title">Đội xe</span>
+                    <span class="menu-title">Quản lý xe</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="quan-ly-tuyen.html">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                    <span class="menu-title">Tuyến đường</span>
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="quan-ly-chuyen.html">
                     <i class="fa-regular fa-calendar-check"></i>
@@ -47,7 +42,7 @@
             </li>
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="fa-solid fa-power-off"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="menu-title">Đăng xuất</span>
                 </a>
             </li>
@@ -55,11 +50,15 @@
     </nav>
 
     <div class="main-panel">
+        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
             <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
             <div class="ms-auto d-flex align-items-center">
-                <span class="fw-bold me-2" id="user-name">Trưởng bến</span>
-                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="35">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Trưởng bến</p>
+                    <small class="text-muted">Trưởng bến</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="40">
             </div>
         </nav>
 
