@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
+            <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -60,13 +60,12 @@
     </nav>
 
     <div class="main-panel">
-        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
             <div class="d-flex align-items-center">
                 <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
                 <div class="input-group">
                     <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm người dùng...">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
             <div class="d-flex align-items-center">
@@ -79,10 +78,9 @@
         </nav>
 
         <div class="content-wrapper p-4">
-            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-success text-white me-2 p-2 rounded">
+                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-users"></i>
                     </span> Quản lý Tài Khoản
                 </h3>
@@ -93,12 +91,46 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    
+                    <div class="row g-2 mb-4 align-items-end">
+                        <div class="col-md-3">
+                            <label class="small text-muted fw-bold">Vai trò</label>
+                            <select class="form-select bg-light border-0" id="filterRole">
+                                <option value="">-- Tất cả vai trò --</option>
+                                <option value="AdminHeThong">Admin Hệ Thống</option>
+                                <option value="AdminBenXe">Admin Bến Xe</option>
+                                <option value="NhanVienBanVe">NV Bán Vé</option>
+                                <option value="TaiXe">Tài Xế</option>
+                                <option value="KhachHang">Khách Hàng</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small text-muted fw-bold">Bến quản lý</label>
+                            <select class="form-select bg-light border-0" id="filterBen">
+                                <option value="">-- Tất cả bến --</option>
+                                </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small text-muted fw-bold">Tìm kiếm chung</label>
+                            <input type="text" class="form-control bg-light border-0" id="searchKeyword" placeholder="Nhập tên, email, sđt...">
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                            <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            
+                            <button class="btn btn-inverse-info flex-grow-1 fw-bold" onclick="filterUser()">
+                                <i class="fa-solid fa-search me-1"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Họ Tên</th>
-                                    <th>Email</th>
+                                    <th>Email / SĐT</th>
                                     <th>Vai trò</th>
                                     <th>Bến Quản Lý</th>
                                     <th>Hành động</th>
@@ -114,7 +146,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal fade" id="userModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -122,7 +154,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addUserForm">
+                    <form id="userForm">
+                        <input type="hidden" id="userId">
+                        
                         <div class="mb-3">
                             <label class="form-label">Họ tên</label>
                             <input type="text" class="form-control" id="hoTen" required>
@@ -138,7 +172,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
+                            <label class="form-label" id="lblMatKhau">Mật khẩu</label>
                             <input type="password" class="form-control" id="matKhau" required>
                         </div>
                         
@@ -147,6 +181,8 @@
                             <select class="form-select" id="vaiTro" onchange="toggleBenSelect()" required>
                                 <option value="KhachHang">Khách Hàng</option>
                                 <option value="AdminBenXe">Quản lý Bến Xe (AdminBenXe)</option>
+                                <option value="NhanVienBanVe">Nhân viên bán vé</option>
+                                <option value="TaiXe">Tài xế</option>
                                 <option value="AdminHeThong">Admin Hệ Thống</option>
                             </select>
                         </div>
@@ -159,7 +195,7 @@
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Tạo tài khoản</button>
+                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Lưu lại</button>
                         </div>
                     </form>
                 </div>
@@ -175,6 +211,8 @@
         if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
         document.getElementById('user-name').innerText = user.hoTen;
 
+        let allUsers = [];
+
         // 1. Load danh sách User
         async function loadUsers() {
             try {
@@ -182,82 +220,192 @@
                 const res = await fetch(`${API_URL}/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await res.json();
-                const tbody = document.getElementById('table-users');
-                tbody.innerHTML = '';
-                
-                data.forEach(u => {
-                    let badgeClass = 'bg-secondary';
-                    if(u.vaiTro === 'AdminHeThong') badgeClass = 'bg-danger';
-                    if(u.vaiTro === 'AdminBenXe') badgeClass = 'bg-warning text-dark';
-                    if(u.vaiTro === 'KhachHang') badgeClass = 'bg-info text-dark';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold">${u.hoTen}</td>
-                            <td>${u.email}</td>
-                            <td><span class="badge ${badgeClass}">${u.vaiTro}</span></td>
-                            <td>${u.maBenQuanLy ? u.maBenQuanLy.tenBen : '-'}</td>
-                            <td>
-                                <button class="btn btn-sm btn-inverse-danger" onclick="deleteUser('${u._id}')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                allUsers = await res.json();
+                renderTable(allUsers);
             } catch (error) { console.error(error); }
         }
 
-        // 2. Load danh sách Bến vào Dropdown
+        // 2. Render Table
+        function renderTable(data) {
+            const tbody = document.getElementById('table-users');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không tìm thấy user nào</td></tr>';
+                return;
+            }
+
+            data.forEach(u => {
+                // 1. Xác định màu sắc dựa trên vai trò
+                let colorClass = 'badge-gradient-blue'; // Màu mặc định (cho Khách hoặc khác)
+                
+                if(u.vaiTro === 'AdminHeThong')  colorClass = 'badge-gradient-red';
+                if(u.vaiTro === 'AdminBenXe')    colorClass = 'badge-gradient-cam';
+                if(u.vaiTro === 'NhanVienBanVe') colorClass = 'badge-gradient-green';
+                if(u.vaiTro === 'TaiXe')         colorClass = 'badge-gradient-yellow';
+                if(u.vaiTro === 'KhachHang')     colorClass = 'badge-gradient-blue';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${u.hoTen}</td>
+                        <td>
+                            <div>${u.email}</div>
+                            <small class="text-muted">${u.soDienThoai}</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-gradient-base ${colorClass}">${u.vaiTro}</span>
+                        </td>
+                        <td>${u.maBenQuanLy ? u.maBenQuanLy.tenBen : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${u._id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteUser('${u._id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. Load danh sách Bến vào Dropdown (Filter & Modal)
         async function loadBenDropdown() {
             try {
                 const res = await fetch(`${API_URL}/ben-xe`);
                 const data = await res.json();
-                const select = document.getElementById('maBenQuanLy');
+                const selectModal = document.getElementById('maBenQuanLy');
+                const selectFilter = document.getElementById('filterBen');
+                
                 data.forEach(ben => {
-                    select.innerHTML += `<option value="${ben._id}">${ben.tenBen}</option>`;
+                    const opt = `<option value="${ben._id}">${ben.tenBen}</option>`;
+                    selectModal.innerHTML += opt;
+                    selectFilter.innerHTML += opt;
                 });
             } catch (error) { console.error(error); }
         }
 
-        // 3. Logic Ẩn/Hiện ô chọn bến
+        // 4. Logic Ẩn/Hiện ô chọn bến
         window.toggleBenSelect = function() {
             const role = document.getElementById('vaiTro').value;
             const group = document.getElementById('group-chon-ben');
-            if (role === 'AdminBenXe') {
+            // Các vai trò cần chọn bến: AdminBenXe, NhanVienBanVe, TaiXe
+            if (['AdminBenXe', 'NhanVienBanVe', 'TaiXe'].includes(role)) {
                 group.style.display = 'block';
             } else {
                 group.style.display = 'none';
             }
         }
 
-        // 4. Mở Modal Thêm
-        window.openAddModal = function() {
-            document.getElementById('addUserForm').reset();
-            document.getElementById('modalTitle').innerText = 'Tạo Tài Khoản Mới';
-            document.getElementById('btnSave').innerText = 'Tạo tài khoản';
-            document.getElementById('group-chon-ben').style.display = 'none'; // Reset trạng thái ẩn
-            new bootstrap.Modal(document.getElementById('addUserModal')).show();
+        // 5. Logic Tìm kiếm & Lọc
+        function filterUser() {
+            const role = document.getElementById('filterRole').value;
+            const benId = document.getElementById('filterBen').value;
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+
+            const filtered = allUsers.filter(u => {
+                // Lọc theo Vai trò
+                const matchRole = role === "" || u.vaiTro === role;
+                
+                // Lọc theo Bến (cần lấy id từ object maBenQuanLy)
+                const idBenDB = u.maBenQuanLy ? u.maBenQuanLy._id : "";
+                const matchBen = benId === "" || idBenDB === benId;
+
+                // Lọc theo Từ khóa
+                const textData = (u.hoTen + u.email + u.soDienThoai).toLowerCase();
+                const matchKeyword = textData.includes(keyword);
+
+                return matchRole && matchBen && matchKeyword;
+            });
+            renderTable(filtered);
         }
 
-        // 5. Xử lý tạo User
-        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+        function resetFilter() {
+            // Xóa trắng các ô nhập liệu
+            document.getElementById('filterRole').value = "";      // Reset dropdown chức vụ
+            document.getElementById('searchKeyword').value = "";   // Reset ô tìm kiếm
+            
+            // Render lại toàn bộ danh sách ban đầu (biến allStaff đã lưu sẵn)
+            renderTable(allUsers);
+        }
+
+        // 6. Modal Add
+        window.openAddModal = function() {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('modalTitle').innerText = 'Tạo Tài Khoản Mới';
+            document.getElementById('btnSave').innerText = 'Tạo tài khoản';
+            
+            // Reset trạng thái input
+            document.getElementById('email').disabled = false;
+            document.getElementById('matKhau').required = true;
+            document.getElementById('lblMatKhau').innerText = "Mật khẩu";
+            document.getElementById('matKhau').placeholder = "";
+            document.getElementById('group-chon-ben').style.display = 'none';
+            
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        // 7. Modal Edit
+        window.openEditModal = function(id) {
+            const u = allUsers.find(user => user._id === id);
+            if(!u) return;
+
+            document.getElementById('userId').value = u._id;
+            document.getElementById('hoTen').value = u.hoTen;
+            document.getElementById('email').value = u.email;
+            document.getElementById('email').disabled = true; // Cấm sửa email
+            document.getElementById('soDienThoai').value = u.soDienThoai;
+            document.getElementById('vaiTro').value = u.vaiTro;
+            
+            // Xử lý Bến
+            toggleBenSelect(); // Kích hoạt hiển thị dropdown bến nếu cần
+            if(u.maBenQuanLy) {
+                document.getElementById('maBenQuanLy').value = u.maBenQuanLy._id;
+            }
+
+            // Xử lý mật khẩu (không bắt buộc khi sửa)
+            document.getElementById('matKhau').value = '';
+            document.getElementById('matKhau').required = false;
+            document.getElementById('lblMatKhau').innerText = "Mật khẩu mới";
+            document.getElementById('matKhau').placeholder = "Để trống nếu không đổi";
+
+            document.getElementById('modalTitle').innerText = 'Cập Nhật Tài Khoản';
+            document.getElementById('btnSave').innerText = 'Cập nhật';
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        // 8. Submit
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('userId').value;
             const token = localStorage.getItem('token');
             
             const data = {
                 hoTen: document.getElementById('hoTen').value,
                 email: document.getElementById('email').value,
                 soDienThoai: document.getElementById('soDienThoai').value,
-                matKhau: document.getElementById('matKhau').value,
                 vaiTro: document.getElementById('vaiTro').value,
                 maBenQuanLy: document.getElementById('maBenQuanLy').value
             };
 
+            // Nếu có nhập mật khẩu thì mới gửi
+            const matKhau = document.getElementById('matKhau').value;
+            if (matKhau) data.matKhau = matKhau;
+            else if (!id) { // Nếu tạo mới mà ko nhập pass (dù html có required nhưng check thêm cho chắc)
+                alert("Vui lòng nhập mật khẩu"); return;
+            }
+
+            let url = `${API_URL}/users`;
+            let method = 'POST';
+            if (id) {
+                url = `${API_URL}/users/${id}`;
+                method = 'PUT';
+            }
+
             try {
-                const res = await fetch(`${API_URL}/users`, {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -266,9 +414,8 @@
                 });
 
                 if (res.ok) {
-                    alert('Tạo tài khoản thành công!');
-                    document.getElementById('addUserForm').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                    alert(id ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
                     loadUsers();
                 } else {
                     const err = await res.json();
@@ -277,7 +424,7 @@
             } catch (error) { console.error(error); }
         });
         
-        // 6. Hàm xóa user
+        // 9. Delete
         async function deleteUser(id) {
             if(!confirm('Bạn có chắc chắn muốn xóa user này?')) return;
             const token = localStorage.getItem('token');

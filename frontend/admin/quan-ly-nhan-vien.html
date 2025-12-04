@@ -69,13 +69,32 @@
                         <i class="fa-solid fa-users-gear"></i>
                     </span> Nhân Sự Bến Xe
                 </h3>
-                <button class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-user-plus me-1"></i> Thêm Nhân Viên
                 </button>
             </div>
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    <div class="row g-2 mb-4 align-items-end">
+                        <div class="col-md-3">
+                            <label class="small text-muted fw-bold">Chức vụ</label>
+                            <select class="form-select bg-light border-0" id="filterRole">
+                                <option value="">-- Tất cả --</option>
+                                <option value="NhanVienBanVe">Nhân viên bán vé</option>
+                                <option value="TaiXe">Tài xế</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="small text-muted fw-bold">Tìm kiếm</label>
+                            <input type="text" class="form-control bg-light border-0" id="searchKeyword" placeholder="Nhập tên hoặc số điện thoại...">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterStaff()">
+                                <i class="fa-solid fa-search me-1"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -96,21 +115,23 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addStaffModal" tabindex="-1">
+    <div class="modal fade" id="staffModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Thêm Nhân Sự Mới</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Nhân Sự Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addStaffForm">
+                    <form id="staffForm">
+                        <input type="hidden" id="staffId">
+                        
                         <div class="mb-3">
                             <label class="form-label">Họ và Tên</label>
                             <input type="text" class="form-control" id="hoTen" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email (Tên đăng nhập)</label>
+                            <label class="form-label">Email (Không thể sửa)</label>
                             <input type="email" class="form-control" id="email" required>
                         </div>
                         <div class="mb-3">
@@ -118,8 +139,8 @@
                             <input type="text" class="form-control" id="soDienThoai" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu mặc định</label>
-                            <input type="text" class="form-control" id="matKhau" value="123456" required>
+                            <label class="form-label">Mật khẩu mới (Để trống nếu không đổi)</label>
+                            <input type="text" class="form-control" id="matKhau" placeholder="Nhập nếu muốn đổi pass">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Chức vụ</label>
@@ -129,7 +150,7 @@
                             </select>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary">Tạo tài khoản</button>
+                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Lưu lại</button>
                         </div>
                     </form>
                 </div>
@@ -143,73 +164,134 @@
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') window.location.href = '/login.html';
         document.getElementById('user-name').innerText = user.hoTen;
-
         const token = localStorage.getItem('token');
 
-        // 1. Load danh sách nhân viên (Backend tự lọc nhân viên của bến này)
+        let allStaff = [];
+
+        // 1. Load Danh sách Nhân viên
         async function loadStaff() {
             try {
                 const res = await fetch(`${API_URL}/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await res.json();
-                const tbody = document.getElementById('table-staff');
-                tbody.innerHTML = '';
-
-                data.forEach(u => {
-                    // Bỏ qua chính bản thân Admin (nếu API trả về)
-                    if (u._id === user.id) return;
-
-                    let roleBadge = u.vaiTro === 'NhanVienBanVe' 
-                        ? '<span class="badge badge-gradient-success">Bán vé</span>' 
-                        : '<span class="badge badge-gradient-warning text-dark">Tài xế</span>';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold">${u.hoTen}</td>
-                            <td>
-                                <div>${u.email}</div>
-                                <small class="text-muted">${u.soDienThoai}</small>
-                            </td>
-                            <td>${roleBadge}</td>
-                            <td>
-                                <button class="btn btn-sm btn-inverse-danger" onclick="deleteStaff('${u._id}')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                allStaff = await res.json();
+                renderTable(allStaff);
             } catch (error) { console.error(error); }
         }
 
-        // 2. Thêm Nhân viên
-        document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
+        // 2. Render Table
+        function renderTable(data) {
+            const tbody = document.getElementById('table-staff');
+            tbody.innerHTML = '';
+
+            // Lọc bỏ chính mình (Admin đang đăng nhập) khỏi danh sách
+            const filteredData = data.filter(u => u._id !== user.id);
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không tìm thấy nhân viên</td></tr>';
+                return;
+            }
+
+            filteredData.forEach(u => {
+                let roleBadge = u.vaiTro === 'NhanVienBanVe' 
+                    ? '<span class="badge badge-gradient-success">Bán vé</span>' 
+                    : '<span class="badge badge-gradient-warning text-dark">Tài xế</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${u.hoTen}</td>
+                        <td>
+                            <div>${u.email}</div>
+                            <small class="text-muted">${u.soDienThoai}</small>
+                        </td>
+                        <td>${roleBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${u._id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteStaff('${u._id}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. Logic Tìm kiếm & Lọc
+        function filterStaff() {
+            const role = document.getElementById('filterRole').value;
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+
+            const filtered = allStaff.filter(u => {
+                const matchRole = role === "" || u.vaiTro === role;
+                const textData = (u.hoTen + u.soDienThoai).toLowerCase();
+                const matchKeyword = textData.includes(keyword);
+                return matchRole && matchKeyword;
+            });
+            renderTable(filtered);
+        }
+
+        // 4. Modal Add
+        function openAddModal() {
+            document.getElementById('staffForm').reset();
+            document.getElementById('staffId').value = '';
+            document.getElementById('email').disabled = false; // Cho nhập email
+            document.getElementById('matKhau').placeholder = "Nhập mật khẩu (Bắt buộc)";
+            document.getElementById('matKhau').required = true;
+            
+            document.getElementById('modalTitle').innerText = 'Thêm Nhân Sự Mới';
+            document.getElementById('btnSave').innerText = 'Tạo tài khoản';
+            new bootstrap.Modal(document.getElementById('staffModal')).show();
+        }
+
+        // 5. Modal Edit
+        function openEditModal(id) {
+            const u = allStaff.find(s => s._id === id);
+            if(!u) return;
+
+            document.getElementById('staffId').value = u._id;
+            document.getElementById('hoTen').value = u.hoTen;
+            document.getElementById('email').value = u.email;
+            document.getElementById('email').disabled = true; // Không cho sửa email (ID đăng nhập)
+            document.getElementById('soDienThoai').value = u.soDienThoai;
+            document.getElementById('vaiTro').value = u.vaiTro;
+            
+            // Mật khẩu không bắt buộc khi sửa
+            document.getElementById('matKhau').value = '';
+            document.getElementById('matKhau').placeholder = "Nhập nếu muốn đổi pass (để trống giữ nguyên)";
+            document.getElementById('matKhau').required = false;
+
+            document.getElementById('modalTitle').innerText = 'Cập Nhật Thông Tin';
+            document.getElementById('btnSave').innerText = 'Lưu thay đổi';
+            new bootstrap.Modal(document.getElementById('staffModal')).show();
+        }
+
+        // 6. Submit
+        document.getElementById('staffForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('staffId').value;
             
             const data = {
                 hoTen: document.getElementById('hoTen').value,
                 email: document.getElementById('email').value,
                 soDienThoai: document.getElementById('soDienThoai').value,
-                matKhau: document.getElementById('matKhau').value,
                 vaiTro: document.getElementById('vaiTro').value
-                // Không cần gửi maBenQuanLy, backend tự lấy
             };
 
+            const matKhau = document.getElementById('matKhau').value;
+            if (matKhau) data.matKhau = matKhau; // Chỉ gửi nếu có nhập
+
+            let url = `${API_URL}/users`;
+            let method = 'POST';
+            if(id) { url += `/${id}`; method = 'PUT'; }
+
             try {
-                const res = await fetch(`${API_URL}/users`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
-                    alert('Tạo nhân viên thành công!');
-                    document.getElementById('addStaffForm').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addStaffModal')).hide();
+                    alert(id ? 'Cập nhật thành công' : 'Tạo mới thành công');
+                    bootstrap.Modal.getInstance(document.getElementById('staffModal')).hide();
                     loadStaff();
                 } else {
                     const err = await res.json();
@@ -218,14 +300,15 @@
             } catch (error) { console.error(error); }
         });
 
-        // 3. Xóa Nhân viên
+        // 7. Delete
         async function deleteStaff(id) {
             if(!confirm('Chắc chắn xóa nhân viên này?')) return;
-            await fetch(`${API_URL}/users/${id}`, {
+            const res = await fetch(`${API_URL}/users/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            loadStaff();
+            if(res.ok) loadStaff();
+            else alert('Lỗi khi xóa');
         }
 
         loadStaff();

@@ -70,4 +70,42 @@ const xoaNguoiDung = async (req, res) => {
     }
 };
 
-module.exports = { layDsNguoiDung, taoNguoiDung, xoaNguoiDung };
+// @desc    Cập nhật thông tin người dùng
+// @route   PUT /api/users/:id
+const capNhatNguoiDung = async (req, res) => {
+    try {
+        const { hoTen, soDienThoai, vaiTro, matKhau } = req.body;
+        const user = await NguoiDung.findById(req.params.id);
+
+        if (!user) return res.status(404).json({ message: 'User không tồn tại' });
+
+        // Check quyền: Admin Bến chỉ được sửa nhân viên của bến mình
+        if (req.user.vaiTro === 'AdminBenXe') {
+            if (user.maBenQuanLy?.toString() !== req.user.maBenQuanLy.toString()) {
+                return res.status(403).json({ message: 'Không có quyền sửa nhân viên bến khác' });
+            }
+            // Không cho phép Admin Bến sửa vaiTro thành Admin Hệ Thống
+            if (vaiTro === 'AdminHeThong') {
+                return res.status(403).json({ message: 'Không được phép nâng quyền này' });
+            }
+        }
+
+        user.hoTen = hoTen || user.hoTen;
+        user.soDienThoai = soDienThoai || user.soDienThoai;
+        user.vaiTro = vaiTro || user.vaiTro;
+        
+        // Nếu có gửi mật khẩu mới thì cập nhật (Middleware pre-save sẽ tự hash)
+        if (matKhau) {
+            user.matKhau = matKhau;
+        }
+
+        await user.save();
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Nhớ export thêm hàm này:
+module.exports = { layDsNguoiDung, taoNguoiDung, xoaNguoiDung, capNhatNguoiDung };
+

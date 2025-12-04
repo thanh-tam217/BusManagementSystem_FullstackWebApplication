@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
+            <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -60,16 +60,15 @@
     </nav>
 
     <div class="main-panel">
-        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
             <div class="d-flex align-items-center">
                 <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
                 <div class="input-group">
                     <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm tuyến xe...">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
-            <div class="d-flex align-items-center">
+            <div class="ms-auto d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
                     <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
                     <small class="text-muted">Quản trị viên</small>
@@ -79,10 +78,9 @@
         </nav>
 
         <div class="content-wrapper p-4">
-            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-info text-white me-2 p-2 rounded">
+                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-map-location-dot"></i>
                     </span> Quản lý Tuyến Đường
                 </h3>
@@ -93,6 +91,31 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    
+                    <div class="row g-2 mb-4 align-items-end">
+                        <div class="col-md-5">
+                            <label class="small text-muted fw-bold">Điểm Đi</label>
+                            <select class="form-select bg-light border-0" id="filterDiemDi">
+                                <option value="">-- Tất cả --</option>
+                                </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="small text-muted fw-bold">Điểm Đến</label>
+                            <select class="form-select bg-light border-0" id="filterDiemDen">
+                                <option value="">-- Tất cả --</option>
+                                </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            <button class="btn btn-inverse-info flex-grow-1 fw-bold" onclick="filterTuyen()">
+                                <i class="fa-solid fa-search me-1"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -169,18 +192,23 @@
 
         let allTuyen = [];
 
-        // 1. Load danh sách Tỉnh vào 2 Dropdown
+        // 1. Load danh sách Tỉnh
         async function loadDropdownTinh() {
             try {
                 const res = await fetch(`${API_URL}/tinh-thanh`);
                 const data = await res.json();
+                
                 const selectDi = document.getElementById('diemDi');
                 const selectDen = document.getElementById('diemDen');
+                const filterDi = document.getElementById('filterDiemDi');
+                const filterDen = document.getElementById('filterDiemDen');
                 
                 data.forEach(tinh => {
-                    const option = `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
-                    selectDi.innerHTML += option;
-                    selectDen.innerHTML += option;
+                    const opt = `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
+                    selectDi.innerHTML += opt;
+                    selectDen.innerHTML += opt;
+                    filterDi.innerHTML += opt;
+                    filterDen.innerHTML += opt;
                 });
             } catch (e) { console.error(e); }
         }
@@ -193,36 +221,69 @@
                      headers: { 'Authorization': `Bearer ${token}` }
                 });
                 allTuyen = await res.json();
-                
-                const tbody = document.getElementById('table-tuyen');
-                tbody.innerHTML = '';
-                
-                allTuyen.forEach(tuyen => {
-                    const tenDi = tuyen.diemDi ? tuyen.diemDi.tenTinh : '<span class="text-danger">Unknown</span>';
-                    const tenDen = tuyen.diemDen ? tuyen.diemDen.tenTinh : '<span class="text-danger">Unknown</span>';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold text-primary">
-                                ${tenDi} <i class="fa-solid fa-arrow-right mx-2 text-muted"></i> ${tenDen}
-                            </td>
-                            <td>${tuyen.thoiGianDiChuyen} giờ</td>
-                            <td>${tuyen.quangDuong} km</td>
-                            <td>
-                                <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${tuyen._id}')">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                renderTable(allTuyen);
             } catch (e) { console.error(e); }
         }
 
-        // 3. Mở Modal Thêm
+        // 3. Render Table
+        function renderTable(data) {
+            const tbody = document.getElementById('table-tuyen');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không tìm thấy tuyến nào</td></tr>';
+                return;
+            }
+
+            data.forEach(tuyen => {
+                const tenDi = tuyen.diemDi ? tuyen.diemDi.tenTinh : '<span class="text-danger">Unknown</span>';
+                const tenDen = tuyen.diemDen ? tuyen.diemDen.tenTinh : '<span class="text-danger">Unknown</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-primary">
+                            ${tenDi} <i class="fa-solid fa-arrow-right mx-2 text-muted"></i> ${tenDen}
+                        </td>
+                        <td>${tuyen.thoiGianDiChuyen} giờ</td>
+                        <td>${tuyen.quangDuong} km</td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${tuyen._id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 4. Lọc Tuyến
+        function filterTuyen() {
+            const diId = document.getElementById('filterDiemDi').value;
+            const denId = document.getElementById('filterDiemDen').value;
+
+            const filtered = allTuyen.filter(t => {
+                const idDi = t.diemDi ? t.diemDi._id : '';
+                const idDen = t.diemDen ? t.diemDen._id : '';
+                const matchDi = diId === "" || idDi === diId;
+                const matchDen = denId === "" || idDen === denId;
+                return matchDi && matchDen;
+            });
+            renderTable(filtered);
+        }
+
+        // 5. Reset Filter (MỚI THÊM)
+        function resetFilter() {
+            // Xóa giá trị chọn
+            document.getElementById('filterDiemDi').value = "";
+            document.getElementById('filterDiemDen').value = "";
+            // Render lại toàn bộ danh sách gốc
+            renderTable(allTuyen);
+        }
+
+        // --- CÁC HÀM MODAL & SUBMIT GIỮ NGUYÊN ---
         window.openAddModal = function() {
             document.getElementById('tuyenForm').reset();
             document.getElementById('tuyenId').value = '';
@@ -231,16 +292,13 @@
             new bootstrap.Modal(document.getElementById('tuyenModal')).show();
         }
 
-        // 4. Mở Modal Sửa
         window.openEditModal = function(id) {
             const tuyen = allTuyen.find(t => t._id === id);
             if (!tuyen) return;
 
             document.getElementById('tuyenId').value = tuyen._id;
-            // Chọn đúng tỉnh trong dropdown (lưu ý: diemDi là object)
             if(tuyen.diemDi) document.getElementById('diemDi').value = tuyen.diemDi._id;
             if(tuyen.diemDen) document.getElementById('diemDen').value = tuyen.diemDen._id;
-            
             document.getElementById('thoiGian').value = tuyen.thoiGianDiChuyen;
             document.getElementById('quangDuong').value = tuyen.quangDuong;
 
@@ -249,19 +307,14 @@
             new bootstrap.Modal(document.getElementById('tuyenModal')).show();
         }
 
-        // 5. Xử lý Submit
         document.getElementById('tuyenForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('tuyenId').value;
             const token = localStorage.getItem('token');
-            
             const diemDi = document.getElementById('diemDi').value;
             const diemDen = document.getElementById('diemDen').value;
             
-            if (diemDi === diemDen) {
-                alert('Điểm đi và Điểm đến không được trùng nhau!');
-                return;
-            }
+            if (diemDi === diemDen) { alert('Điểm đi và Điểm đến không được trùng nhau!'); return; }
 
             const data = {
                 diemDi: diemDi,
@@ -272,26 +325,17 @@
 
             let url = `${API_URL}/tuyen-xe`;
             let method = 'POST';
-
-            if (id) {
-                // url += `/${id}`;
-                // method = 'PUT';
-                alert("Bạn cần viết API Cập nhật Tuyến bên Backend trước!");
-                return;
-            }
+            if (id) { url += `/${id}`; method = 'PUT'; } // Dùng PUT nếu có ID
 
             try {
                 const res = await fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
-                    alert('Lưu thành công!');
+                    alert('Thành công!');
                     bootstrap.Modal.getInstance(document.getElementById('tuyenModal')).hide();
                     loadTuyen();
                 } else {

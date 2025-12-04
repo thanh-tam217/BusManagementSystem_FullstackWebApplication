@@ -15,7 +15,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
+            <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -83,11 +83,9 @@
 
         <div class="content-wrapper p-4">
             
-            <div class="page-header mb-4">
+            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </span> Thống kê hệ thống
+                    <i class="fa-solid fa-chart-line me-2"></i> Thống kê hệ thống
                 </h3>
             </div>
 
@@ -102,6 +100,8 @@
                         </div>
                     </div>
                 </div>
+
+                
                 <div class="col-md-4 stretch-card grid-margin mb-3">
                     <div class="card bg-gradient-info card-weather text-white p-4">
                         <div class="card-body">
@@ -119,6 +119,35 @@
                             <h5 class="font-weight-normal mb-3">Tổng người dùng</h5>
                             <h2 class="mb-5" id="count-user">0</h2>
                             <h6 class="card-text">Bao gồm Admin Bến & Khách</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- thống kê -->
+            <div class="row mt-4">
+                <div class="col-12 grid-margin stretch-card">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                                <h4 class="card-title mb-0">Biểu đồ doanh thu</h4>
+                                
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm" id="chartYear" style="width: 100px;" onchange="loadChart()">
+                                        </select>
+
+                                    <select class="form-select form-select-sm" id="chartBen" style="width: 200px;" onchange="loadChart()">
+                                        <option value="">-- Tất cả hệ thống --</option>
+                                        </select>
+                                </div>
+                            </div>
+
+                            <div style="height: 350px;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -162,6 +191,96 @@
         }
         document.getElementById('user-name').innerText = user.hoTen;
 
+
+        
+        // Biến lưu biểu đồ để hủy và vẽ lại
+        let myChartInstance = null;
+
+        // 1. Khởi tạo các Dropdown (Năm & Bến)
+        async function initFilters() {
+            // A. Tạo danh sách năm (Từ 2023 -> Hiện tại + 1)
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('chartYear');
+            for (let y = currentYear; y >= 2023; y--) {
+                yearSelect.innerHTML += `<option value="${y}">Năm ${y}</option>`;
+            }
+
+            // B. Tải danh sách Bến
+            try {
+                const res = await fetch(`${API_URL}/ben-xe`);
+                const data = await res.json();
+                const benSelect = document.getElementById('chartBen');
+                data.forEach(ben => {
+                    benSelect.innerHTML += `<option value="${ben._id}">${ben.tenBen}</option>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // 2. Load Chart (Có tham số)
+        async function loadChart() {
+            const year = document.getElementById('chartYear').value;
+            const maBen = document.getElementById('chartBen').value;
+
+            try {
+                const token = localStorage.getItem('token');
+                // Gọi API với query params
+                let url = `${API_URL}/thong-ke/doanh-thu-nam?year=${year}`;
+                if (maBen) {
+                    url += `&maBen=${maBen}`;
+                }
+
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+
+                // Cấu hình Chart.js
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+                // QUAN TRỌNG: Hủy biểu đồ cũ trước khi vẽ mới (Tránh lỗi chồng biểu đồ)
+                if (myChartInstance) {
+                    myChartInstance.destroy();
+                }
+
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(154, 85, 255, 0.8)');
+                gradient.addColorStop(1, 'rgba(154, 85, 255, 0.2)');
+
+                myChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                        datasets: [{
+                            label: `Doanh thu ${year} (VNĐ)`,
+                            data: result.data,
+                            backgroundColor: gradient,
+                            borderColor: '#9a55ff',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumSignificantDigits: 3 }).format(value);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'bottom' }
+                        }
+                    }
+                });
+
+            } catch (error) { console.error(error); }
+        }
         async function loadData() {
             try {
                 // 1. Lấy thống kê Bến
@@ -199,7 +318,7 @@
                             <td>${index + 1}</td>
                             <td class="fw-bold text-primary">${ben.tenBen}</td>
                             <td>${tenTinh}</td>
-                            <td><label class="badge badge-gradient-success">Hoạt động</label></td>
+                            <td><label class="badge-gradient-blue">Hoạt động</label></td>
                         </tr>
                     `;
                 });
@@ -208,8 +327,76 @@
                 console.error(error);
             }
         }
+
+        // ... (các code loadData cũ giữ nguyên) ...
+
+        // // 4. Hàm vẽ biểu đồ doanh thu
+        // async function loadChart() {
+        //     try {
+        //         const token = localStorage.getItem('token');
+        //         const res = await fetch(`${API_URL}/thong-ke/doanh-thu-nam`, {
+        //             headers: { 'Authorization': `Bearer ${token}` }
+        //         });
+        //         const result = await res.json();
+
+        //         // Cấu hình Chart.js
+        //         const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+        //         // Tạo màu Gradient tím cho đẹp (đúng phong cách Purple)
+        //         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        //         gradient.addColorStop(0, 'rgba(154, 85, 255, 0.8)'); // Màu tím đậm
+        //         gradient.addColorStop(1, 'rgba(154, 85, 255, 0.2)'); // Màu tím nhạt
+
+        //         new Chart(ctx, {
+        //             type: 'bar', // Biểu đồ cột
+        //             data: {
+        //                 labels: ['Th 1', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7', 'Th 8', 'Th 9', 'Th 10', 'Th 11', 'Th 12'],
+        //                 datasets: [{
+        //                     label: 'Doanh thu (VNĐ)',
+        //                     data: result.data, // Dữ liệu từ API
+        //                     backgroundColor: gradient,
+        //                     borderColor: '#9a55ff',
+        //                     borderWidth: 1,
+        //                     borderRadius: 5,
+        //                     barPercentage: 0.6
+        //                 }]
+        //             },
+        //             options: {
+        //                 responsive: true,
+        //                 scales: {
+        //                     y: {
+        //                         beginAtZero: true,
+        //                         ticks: {
+        //                             callback: function(value) {
+        //                                 // Format số tiền (vd: 1.000.000)
+        //                                 return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+        //                             }
+        //                         }
+        //                     }
+        //                 },
+        //                 plugins: {
+        //                     legend: { display: false }, // Ẩn chú thích cho gọn
+        //                     tooltip: {
+        //                         callbacks: {
+        //                             label: function(context) {
+        //                                 return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.raw);
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         });
+
+        //     } catch (error) { console.error(error); }
+        // }
+
+        // // Gọi hàm vẽ biểu đồ
+        // loadChart();
         
         loadData();
+        initFilters().then(() => {
+            loadChart(); // Load biểu đồ mặc định sau khi init xong filter
+        });
     </script>
 </body>
 </html>

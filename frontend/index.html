@@ -166,6 +166,254 @@
         </div>
     </div>
 
+    <section class="features-section py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Tại sao chọn FUTA BUS?</h2>
+                <p class="text-muted">Chúng tôi mang đến trải nghiệm tốt nhất cho hành trình của bạn</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon-circle">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4>An Toàn Tuyệt Đối</h4>
+                        <p class="text-muted">Đội ngũ tài xế chuyên nghiệp, xe đời mới được bảo dưỡng thường xuyên.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon-circle" style="background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h4>Đặt Vé Nhanh Chóng</h4>
+                        <p class="text-muted">Chỉ với 3 bước đơn giản trên website. Giữ chỗ ngay lập tức.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon-circle" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h4>Hỗ Trợ 24/7</h4>
+                        <p class="text-muted">Tổng đài chăm sóc khách hàng luôn sẵn sàng giải đáp mọi thắc mắc.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5 my-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase">
+                <span class="border-bottom border-3 border-primary pb-2">Chuyến xe phổ biến</span>
+            </h2>
+            <p class="text-muted mt-3">Các tuyến đường được hành khách lựa chọn nhiều nhất</p>
+        </div>
+        
+        <div class="row g-4" id="popular-routes">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm futa-card border-0">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=2071&auto=format&fit=crop" class="card-img-top" alt="HCM - Đà Lạt" style="height: 200px; object-fit: cover;">
+                        <span class="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 m-2 rounded-pill fw-bold small">HOT</span>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold text-primary mb-3">TP. Hồ Chí Minh <i class="fa-solid fa-arrow-right mx-2 text-muted small"></i> Đà Lạt</h5>
+                        <div class="d-flex justify-content-around mb-4 text-muted small">
+                            <span><i class="fa-solid fa-clock me-1"></i> 8 giờ</span>
+                            <span><i class="fa-solid fa-road me-1"></i> 300km</span>
+                        </div>
+                        <button class="btn btn-outline-primary rounded-pill w-100 fw-bold" onclick="timChuyenNhanh('TP. Hồ Chí Minh', 'Lâm Đồng')">
+                            Xem chuyến <i class="fa-solid fa-chevron-right ms-1 small"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm futa-card border-0">
+                    <div class="position-relative">
+                        <img src="https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/08/hoi-an-quang-nam-vntrip.jpg" class="card-img-top" alt="Đà Nẵng - Hội An" style="height: 200px; object-fit: cover;">
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold text-primary mb-3">Đà Nẵng <i class="fa-solid fa-arrow-right mx-2 text-muted small"></i> Quảng Nam</h5>
+                        <div class="d-flex justify-content-around mb-4 text-muted small">
+                            <span><i class="fa-solid fa-clock me-1"></i> 1 giờ</span>
+                            <span><i class="fa-solid fa-road me-1"></i> 30km</span>
+                        </div>
+                        <button class="btn btn-outline-primary rounded-pill w-100 fw-bold" onclick="timChuyenNhanh('Đà Nẵng', 'Quảng Nam')">
+                            Xem chuyến <i class="fa-solid fa-chevron-right ms-1 small"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm futa-card border-0">
+                    <div class="position-relative">
+                        <img src="https://asiatravel.net.vn/upload/images/tbl_news_1740110995.jpg" class="card-img-top" alt="Hà Nội - Sapa" style="height: 200px; object-fit: cover;">
+                         <span class="position-absolute top-0 end-0 bg-success text-white px-3 py-1 m-2 rounded-pill fw-bold small">Giảm giá</span>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold text-primary mb-3">Hà Nội <i class="fa-solid fa-arrow-right mx-2 text-muted small"></i> Lào Cai (Sapa)</h5>
+                        <div class="d-flex justify-content-around mb-4 text-muted small">
+                            <span><i class="fa-solid fa-clock me-1"></i> 6 giờ</span>
+                            <span><i class="fa-solid fa-road me-1"></i> 320km</span>
+                        </div>
+                        <button class="btn btn-outline-primary rounded-pill w-100 fw-bold" onclick="timChuyenNhanh('Hà Nội', 'Lào Cai')">
+                            Xem chuyến <i class="fa-solid fa-chevron-right ms-1 small"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mb-5">
+        <div class="promo-banner text-center">
+            <h2 class="fw-bold mb-3">ƯU ĐÃI MÙA HÈ - GIẢM NGAY 10%</h2>
+            <p class="lead mb-4">Nhập mã <strong>FUTASUMMER</strong> khi đặt vé từ ngày 01/06 đến 30/06. Áp dụng cho mọi tuyến đường.</p>
+            <button class="btn btn-light btn-lg text-dark fw-bold px-5 rounded-pill shadow">Đặt Vé Ngay</button>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Khách hàng nói gì về chúng tôi?</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card h-100">
+                        <i class="fa-solid fa-quote-right quote-icon"></i>
+                        <p class="fst-italic mb-4">"Dịch vụ rất tốt, xe chạy êm và đúng giờ. Tôi rất ấn tượng với sự nhiệt tình của bác tài và nhân viên lơ xe. Chắc chắn sẽ ủng hộ tiếp."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="testimonial-avatar me-3">
+                                <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=random" alt="User 1">
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Nguyễn Văn A</h6>
+                                <small class="text-muted">Khách hàng thân thiết</small>
+                                <div class="text-warning small mt-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-md-4">
+                    <div class="testimonial-card h-100" style="border-top-color: #ff7eb3;">
+                        <i class="fa-solid fa-quote-right quote-icon"></i>
+                        <p class="fst-italic mb-4">"Giao diện đặt vé dễ sử dụng, thanh toán nhanh gọn. Tôi thích nhất là có thể chọn chỗ ngồi trước. Rất tiện lợi!"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="testimonial-avatar me-3">
+                                <img src="https://ui-avatars.com/api/?name=Tran+Thi+B&background=random" alt="User 2">
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Trần Thị B</h6>
+                                <small class="text-muted">Nhân viên văn phòng</small>
+                                <div class="text-warning small mt-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-md-4">
+                    <div class="testimonial-card h-100" style="border-top-color: #fda085;">
+                        <i class="fa-solid fa-quote-right quote-icon"></i>
+                        <p class="fst-italic mb-4">"Giá vé hợp lý, nhiều chuyến xe để lựa chọn trong ngày. Xe giường nằm đời mới rất thoải mái cho những chuyến đi xa."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="testimonial-avatar me-3">
+                                <img src="https://ui-avatars.com/api/?name=Le+Hoang+C&background=random" alt="User 3">
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Lê Hoàng C</h6>
+                                <small class="text-muted">Sinh viên</small>
+                                <div class="text-warning small mt-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="footer-advanced">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <h5 class="text-uppercase mb-4"><i class="fa-solid fa-bus me-2"></i>FUTA BUS LINES</h5>
+                    <p class="mb-4">Đơn vị cung cấp dịch vụ vận tải hành khách hàng đầu Việt Nam. Uy tín - Chất lượng - Tận tâm.</p>
+                    <div class="contact-info">
+                        <p><i class="fa-solid fa-location-dot me-2"></i> 123 Nguyễn Hữu Thọ, Q.7, TP.HCM</p>
+                        <p><i class="fa-solid fa-phone me-2"></i> 1900 6067</p>
+                        <p><i class="fa-solid fa-envelope me-2"></i> hotro@futabus.vn</p>
+                    </div>
+                    <div class="social-icons mt-4">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Về Chúng Tôi</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Tin tức & Sự kiện</a></li>
+                        <li><a href="#">Mạng lưới văn phòng</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Hỗ Trợ</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Hướng dẫn đặt vé</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Câu hỏi thường gặp</a></li>
+                        <li><a href="#">Liên hệ góp ý</a></li>
+                    </ul>
+                </div>
+
+                 <div class="col-lg-4 col-md-6">
+                    <h5 class="text-uppercase">Đăng Ký Nhận Tin</h5>
+                    <p class="small">Nhận thông tin khuyến mãi và ưu đãi mới nhất từ FUTA Bus.</p>
+                    <form action="#">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-light border-secondary" placeholder="Email của bạn..." aria-label="Recipient's email">
+                            <button class="btn btn-primary" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </form>
+                    <div class="mt-4">
+                         <h6 class="text-uppercase mb-3">Tải ứng dụng</h6>
+                         <div class="d-flex">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/1200px-Google_Play_Store_badge_EN.svg.png" alt="Google Play" style="height: 40px;" class="me-2">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/1200px-Download_on_the_App_Store_Badge.svg.png" alt="App Store" style="height: 40px;">
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                 <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; 2024 <strong>FUTA Bus Lines</strong>. All Rights Reserved.
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <img src="http://online.gov.vn/Content/EndUser/LogoCCDVSaleNoti/logoSaleNoti.png" alt="Đã thông báo bộ công thương" style="height: 40px;">
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script>

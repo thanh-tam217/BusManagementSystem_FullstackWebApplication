@@ -13,6 +13,7 @@ const chuyenXeRoutes = require('./routes/chuyenXeRoutes');
 const veXeRoutes = require('./routes/veXeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const thongKeRoutes = require('./routes/thongKeRoutes');
 
 // Load biến môi trường
 dotenv.config();
@@ -40,6 +41,7 @@ app.use('/api/chuyen-xe', chuyenXeRoutes);
 app.use('/api/ve-xe', veXeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/thong-ke', thongKeRoutes);
 
 
 

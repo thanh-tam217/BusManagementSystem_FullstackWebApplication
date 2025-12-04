@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
+            <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -66,7 +66,7 @@
                 <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
                 <div class="input-group">
                     <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm tỉnh thành...">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
             <div class="d-flex align-items-center">
@@ -81,6 +81,8 @@
         <div class="content-wrapper p-4">
             
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+                
+
                 <h3 class="page-title fw-bold">
                     <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-city"></i>
@@ -93,6 +95,10 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    <div class="input-group mb-3" style="max-width: 400px;">
+                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
+                        <input type="text" class="form-control border-0 bg-light" id="searchTinh" placeholder="Tìm kiếm tên tỉnh..." onkeyup="filterTinh()">
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -140,11 +146,8 @@
     <script src="../assets/js/main.js"></script>
     
     <script>
-        // Check quyền
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') {
-            window.location.href = '/login.html';
-        }
+        if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
         document.getElementById('user-name').innerText = user.hoTen;
 
         let allTinh = [];
@@ -154,31 +157,47 @@
             try {
                 const res = await fetch(`${API_URL}/tinh-thanh`);
                 allTinh = await res.json();
-                
-                const tbody = document.getElementById('table-body');
-                tbody.innerHTML = '';
-
-                allTinh.forEach((item, index) => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td class="fw-bold text-primary">${item.tenTinh}</td>
-                            <td>${new Date(item.createdAt).toLocaleDateString('vi-VN')}</td>
-                            <td>
-                                <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${item._id}')">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                renderTable(allTinh);
             } catch (error) { console.error(error); }
         }
 
-        // 2. Mở Modal Thêm
+        // 2. Render Bảng
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không tìm thấy dữ liệu</td></tr>';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="fw-bold text-primary">${item.tenTinh}</td>
+                        <td>${new Date(item.createdAt).toLocaleDateString('vi-VN')}</td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${item._id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteTinh('${item._id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. Tìm kiếm
+        function filterTinh() {
+            const keyword = document.getElementById('searchTinh').value.toLowerCase();
+            const filtered = allTinh.filter(t => t.tenTinh.toLowerCase().includes(keyword));
+            renderTable(filtered);
+        }
+
+        // 4. Modal Thêm
         window.openAddModal = function() {
             document.getElementById('tinhForm').reset();
             document.getElementById('tinhId').value = '';
@@ -187,7 +206,7 @@
             new bootstrap.Modal(document.getElementById('tinhModal')).show();
         }
 
-        // 3. Mở Modal Sửa (Giả lập frontend, cần API PUT để hoạt động thật)
+        // 5. Modal Sửa
         window.openEditModal = function(id) {
             const item = allTinh.find(t => t._id === id);
             if (!item) return;
@@ -199,7 +218,7 @@
             new bootstrap.Modal(document.getElementById('tinhModal')).show();
         }
 
-        // 4. Xử lý Submit
+        // 6. Submit (Add/Update)
         document.getElementById('tinhForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('tinhId').value;
@@ -209,12 +228,9 @@
             let url = `${API_URL}/tinh-thanh`;
             let method = 'POST';
             
-            // Nếu có ID thì là Sửa (Cần bạn viết thêm API PUT bên backend)
             if (id) {
-                // url = `${API_URL}/tinh-thanh/${id}`;
-                // method = 'PUT';
-                alert("Bạn chưa viết API Cập nhật Tỉnh bên Backend. Hiện tại chỉ thêm mới được thôi!");
-                return;
+                url = `${API_URL}/tinh-thanh/${id}`;
+                method = 'PUT';
             }
 
             try {
@@ -225,7 +241,7 @@
                 });
 
                 if (res.ok) {
-                    alert('Thao tác thành công!');
+                    alert(id ? 'Cập nhật thành công!' : 'Thêm mới thành công!');
                     bootstrap.Modal.getInstance(document.getElementById('tinhModal')).hide();
                     loadTinh();
                 } else {
@@ -234,6 +250,36 @@
                 }
             } catch (error) { alert('Lỗi kết nối!'); }
         });
+
+        // 7. Hàm Xóa Tỉnh (Đã hoàn thiện)
+        window.deleteTinh = async function(id) {
+            // Hỏi xác nhận
+            if(!confirm("Bạn có chắc chắn muốn xóa tỉnh này không?")) return;
+            
+            const token = localStorage.getItem('token');
+            
+            try {
+                const res = await fetch(`${API_URL}/tinh-thanh/${id}`, {
+                    method: 'DELETE',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (res.ok) {
+                    alert("Đã xóa thành công!");
+                    loadTinh(); // Tải lại danh sách
+                } else {
+                    // Nếu backend trả về lỗi (ví dụ: đang có bến xe), hiển thị thông báo
+                    const err = await res.json();
+                    alert("Lỗi: " + err.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi kết nối server!");
+            }
+        }
 
         loadTinh();
     </script>

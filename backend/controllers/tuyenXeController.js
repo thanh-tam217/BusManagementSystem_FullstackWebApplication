@@ -38,4 +38,31 @@ const taoTuyen = async (req, res) => {
     }
 };
 
-module.exports = { layDsTuyen, taoTuyen };
+// @desc    Cập nhật Tuyến Xe
+// @route   PUT /api/tuyen-xe/:id
+const capNhatTuyen = async (req, res) => {
+    try {
+        const { diemDi, diemDen, thoiGianDiChuyen, quangDuong } = req.body;
+        const tuyen = await TuyenXe.findById(req.params.id);
+
+        if (!tuyen) return res.status(404).json({ message: 'Không tìm thấy tuyến xe' });
+
+        if (diemDi === diemDen) {
+            return res.status(400).json({ message: 'Điểm đi và điểm đến không được trùng nhau' });
+        }
+
+        tuyen.diemDi = diemDi || tuyen.diemDi;
+        tuyen.diemDen = diemDen || tuyen.diemDen;
+        tuyen.thoiGianDiChuyen = thoiGianDiChuyen || tuyen.thoiGianDiChuyen;
+        tuyen.quangDuong = quangDuong || tuyen.quangDuong;
+
+        await tuyen.save();
+        res.json(tuyen);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Nhớ export thêm hàm này:
+module.exports = { layDsTuyen, taoTuyen, capNhatTuyen };
+

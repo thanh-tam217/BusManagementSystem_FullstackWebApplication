@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus-simple me-2"></i> SYSTEM ADMIN
+            <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -60,16 +60,15 @@
     </nav>
 
     <div class="main-panel">
-        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
             <div class="d-flex align-items-center">
                 <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
                 <div class="input-group">
                     <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm bến xe...">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
-            <div class="d-flex align-items-center">
+            <div class="ms-auto d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
                     <p class="mb-0 fw-bold text-dark" id="user-name">Admin</p>
                     <small class="text-muted">Quản trị viên</small>
@@ -79,10 +78,9 @@
         </nav>
 
         <div class="content-wrapper p-4">
-            
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
                 <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-info text-white me-2 p-2 rounded">
+                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
                         <i class="fa-solid fa-landmark"></i>
                     </span> Quản lý Bến Xe
                 </h3>
@@ -93,14 +91,32 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    
+                    <div class="row g-2 mb-4 align-items-end">
+                        <div class="col-md-4">
+                            <label class="small text-muted fw-bold">Lọc theo Tỉnh</label>
+                            <select class="form-select bg-light border-0" id="filterTinh">
+                                <option value="">-- Tất cả Tỉnh/Thành --</option>
+                                </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted fw-bold">Tìm kiếm chung</label>
+                            <input type="text" class="form-control bg-light border-0" id="searchKeyword" placeholder="Nhập tên bến, địa chỉ, người quản lý...">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterBen()">
+                                <i class="fa-solid fa-search me-1"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Tên Bến</th>
                                     <th>Tỉnh / Thành phố</th>
-                                    <th>Địa chỉ</th>
-                                    <th>SĐT</th>
+                                    <th>Admin Quản Lý</th> <th>Địa chỉ / SĐT</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -114,7 +130,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addBenModal" tabindex="-1">
+    <div class="modal fade" id="benModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -122,7 +138,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addBenForm">
+                    <form id="benForm">
                         <input type="hidden" id="benId">
                         
                         <div class="mb-3">
@@ -163,63 +179,124 @@
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminHeThong') window.location.href = '/login.html';
         document.getElementById('user-name').innerText = user.hoTen;
+        const token = localStorage.getItem('token');
 
         let allBen = [];
+        let allAdmins = []; // Danh sách Admin bến xe
 
-        // 1. Load danh sách Tỉnh vào Dropdown
-        async function loadDropdownTinh() {
+        // 1. Load Dữ liệu nền (Tỉnh & User Admin)
+        async function loadDataNen() {
             try {
-                const res = await fetch(`${API_URL}/tinh-thanh`);
-                const data = await res.json();
-                const select = document.getElementById('select-tinh');
-                data.forEach(tinh => {
-                    select.innerHTML += `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
+                // a. Load Tỉnh vào Dropdown Lọc và Modal
+                const resTinh = await fetch(`${API_URL}/tinh-thanh`);
+                const dataTinh = await resTinh.json();
+                
+                const selectFilter = document.getElementById('filterTinh');
+                const selectModal = document.getElementById('select-tinh');
+                
+                dataTinh.forEach(tinh => {
+                    const opt = `<option value="${tinh._id}">${tinh.tenTinh}</option>`;
+                    selectFilter.innerHTML += opt;
+                    selectModal.innerHTML += opt;
                 });
+
+                // b. Load Danh sách Admin Bến (để map tên)
+                const resUsers = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataUsers = await resUsers.json();
+                // Lọc lấy những người là AdminBenXe
+                allAdmins = dataUsers.filter(u => u.vaiTro === 'AdminBenXe');
+
             } catch (e) { console.error(e); }
         }
 
-        // 2. Load danh sách Bến ra bảng
+        // 2. Load Danh sách Bến
         async function loadBen() {
             try {
                 const res = await fetch(`${API_URL}/ben-xe`);
                 allBen = await res.json();
-                
-                const tbody = document.getElementById('table-ben');
-                tbody.innerHTML = '';
-                
-                allBen.forEach(ben => {
-                    const tenTinh = ben.maTinh ? ben.maTinh.tenTinh : '<span class="text-danger">Chưa gán</span>';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold text-primary">${ben.tenBen}</td>
-                            <td><span class="badge bg-inverse-info text-info">${tenTinh}</span></td>
-                            <td>${ben.diaChi}</td>
-                            <td>${ben.soDienThoai || '-'}</td>
-                            <td>
-                                <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${ben._id}')">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                renderTable(allBen);
             } catch (e) { console.error(e); }
         }
 
-        // 3. Mở Modal Thêm
-        window.openAddModal = function() {
-            document.getElementById('addBenForm').reset();
+        // 3. Render Table (Có map tên Admin)
+        function renderTable(data) {
+            const tbody = document.getElementById('table-ben');
+            tbody.innerHTML = '';
+            
+            if(data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không tìm thấy bến xe nào</td></tr>';
+                return;
+            }
+
+            data.forEach(ben => {
+                const tenTinh = ben.maTinh ? ben.maTinh.tenTinh : '<span class="text-danger">Chưa gán</span>';
+                
+                // Logic tìm Admin quản lý bến này
+                // Tìm trong danh sách allAdmins xem ai có maBenQuanLy._id trùng với ben._id
+                const admin = allAdmins.find(u => u.maBenQuanLy && u.maBenQuanLy._id === ben._id);
+                const tenAdmin = admin ? 
+                    `<span class="text-success fw-bold"><i class="fa-solid fa-user-shield me-1"></i>${admin.hoTen}</span>` : 
+                    `<span class="badge bg-light text-muted border">Chưa có Admin</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-primary">${ben.tenBen}</td>
+                        <td><span class="badge bg-inverse-info text-dark">${tenTinh}</span></td>
+                        <td>${tenAdmin}</td>
+                        <td>
+                            <div>${ben.diaChi}</div>
+                            <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>${ben.soDienThoai || '---'}</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${ben._id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteBen('${ben._id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 4. Lọc & Tìm kiếm
+        function filterBen() {
+            const tinhId = document.getElementById('filterTinh').value;
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+
+            const filtered = allBen.filter(ben => {
+                // Lọc theo tỉnh
+                // Lưu ý: ben.maTinh là object (do populate), cần lấy ._id
+                const idTinhDB = ben.maTinh ? ben.maTinh._id : '';
+                const matchTinh = (tinhId === "") || (idTinhDB === tinhId);
+
+                // Lọc theo từ khóa (Tên bến, Địa chỉ, hoặc Tên Admin)
+                // Tìm tên admin của bến này để search luôn
+                const admin = allAdmins.find(u => u.maBenQuanLy && u.maBenQuanLy._id === ben._id);
+                const adminName = admin ? admin.hoTen : '';
+
+                const textData = (ben.tenBen + ben.diaChi + adminName).toLowerCase();
+                const matchKeyword = textData.includes(keyword);
+
+                return matchTinh && matchKeyword;
+            });
+            renderTable(filtered);
+        }
+
+        // 5. Modal Add
+        function openAddModal() {
+            document.getElementById('benForm').reset();
             document.getElementById('benId').value = '';
             document.getElementById('modalTitle').innerText = 'Thêm Bến Xe Mới';
             document.getElementById('btnSave').innerText = 'Lưu lại';
-            new bootstrap.Modal(document.getElementById('addBenModal')).show();
+            new bootstrap.Modal(document.getElementById('benModal')).show();
         }
 
-        // 4. Mở Modal Sửa (Cần bạn code API PUT bên backend)
-        window.openEditModal = function(id) {
+        // 6. Modal Edit
+        function openEditModal(id) {
             const ben = allBen.find(b => b._id === id);
             if (!ben) return;
 
@@ -227,21 +304,17 @@
             document.getElementById('tenBen').value = ben.tenBen;
             document.getElementById('diaChi').value = ben.diaChi;
             document.getElementById('soDienThoai').value = ben.soDienThoai;
-            // Chọn đúng tỉnh trong dropdown
-            if(ben.maTinh) {
-                document.getElementById('select-tinh').value = ben.maTinh._id;
-            }
+            if(ben.maTinh) document.getElementById('select-tinh').value = ben.maTinh._id;
 
             document.getElementById('modalTitle').innerText = 'Cập Nhật Bến Xe';
             document.getElementById('btnSave').innerText = 'Cập nhật';
-            new bootstrap.Modal(document.getElementById('addBenModal')).show();
+            new bootstrap.Modal(document.getElementById('benModal')).show();
         }
 
-        // 5. Xử lý Submit
-        document.getElementById('addBenForm').addEventListener('submit', async (e) => {
+        // 7. Submit
+        document.getElementById('benForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('benId').value;
-            const token = localStorage.getItem('token');
             const data = {
                 tenBen: document.getElementById('tenBen').value,
                 maTinh: document.getElementById('select-tinh').value,
@@ -251,37 +324,44 @@
 
             let url = `${API_URL}/ben-xe`;
             let method = 'POST';
-
-            if (id) {
-                // url += `/${id}`;
-                // method = 'PUT';
-                alert("Bạn cần viết API Cập nhật Bến Xe bên Backend trước!");
-                return;
-            }
+            if (id) { url += `/${id}`; method = 'PUT'; }
 
             try {
                 const res = await fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
-                    alert('Lưu thành công!');
-                    bootstrap.Modal.getInstance(document.getElementById('addBenModal')).hide();
+                    alert(id ? 'Cập nhật thành công!' : 'Thêm mới thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('benModal')).hide();
                     loadBen();
                 } else {
                     const err = await res.json();
-                    alert('Lỗi: ' + err.message);
+                    alert(err.message);
                 }
             } catch (error) { console.error(error); }
         });
 
-        loadDropdownTinh();
-        loadBen();
+        // 8. Delete
+        async function deleteBen(id) {
+            if(!confirm('Bạn có chắc chắn xóa bến xe này? (Hành động này có thể ảnh hưởng đến các chuyến xe)')) return;
+            const res = await fetch(`${API_URL}/ben-xe/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if(res.ok) {
+                alert('Đã xóa bến xe');
+                loadBen();
+            } else alert('Lỗi khi xóa');
+        }
+
+        // Chạy lần đầu
+        // Phải load Data nền trước (Tỉnh, User) rồi mới load Bến để map dữ liệu
+        loadDataNen().then(() => {
+            loadBen();
+        });
     </script>
 </body>
 </html>

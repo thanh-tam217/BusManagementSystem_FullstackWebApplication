@@ -15,6 +15,7 @@ body {
     color: #343a40;
 }
 
+
 /* 2. Sidebar Lung Linh */
 .sidebar {
     width: var(--sidebar-width);
@@ -137,4 +138,230 @@ body {
 .btn-gradient-primary:hover {
     opacity: 0.9;
     color: #fff;
+}
+
+
+
+/* ----------------------------------------------------------------------------- */
+/* --- BADGE GRADIENT CHUẨN ĐẸP --- */
+
+/* 1. Badge Xanh Dương (Blue) */
+.badge-gradient-blue {
+    background: linear-gradient(to right, #90caf9, #047edf);
+    color: white;
+    border: none;
+    /* Nâng cấp giao diện */
+    padding: 8px 16px;              /* Khoảng cách lề */
+    border-radius: 50px;            /* Bo tròn dạng viên thuốc */
+    font-size: 12px;
+    font-weight: 600;               /* Chữ đậm vừa phải */
+
+    display: inline-block;
+}
+
+/* 2. Badge Cam (Orange) */
+.badge-gradient-cam {
+    background: linear-gradient(to right, #ffbf96, #fe7096);
+    color: white;
+    border: none;
+    /* Nâng cấp giao diện */
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+
+    display: inline-block;
+}
+
+/* 3. Badge Xanh Lá (Green) */
+.badge-gradient-green {
+    background: linear-gradient(to right, #84d9d2, #07cdae);
+    color: white;
+    border: none;
+    /* Nâng cấp giao diện */
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    
+    display: inline-block;
+}
+
+
+/* --- BỘ BADGE GRADIENT MỚI --- */
+
+/* Class chung cho Badge để không phải viết lại padding/border nhiều lần */
+.badge-gradient-base {
+    color: white;
+    border: none;
+    padding: 8px 10px; /* Giảm padding trái phải một chút */
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+
+    /* --- CÁC DÒNG MỚI ĐỂ CHỈNH CÙNG CHIỀU RỘNG --- */
+    width: 140px;        /* 1. Thiết lập chiều rộng cố định (Bạn có thể tăng/giảm số này) */
+    text-align: center;  /* 2. Canh giữa chữ trong khung */
+    white-space: nowrap; /* 3. Giữ chữ luôn nằm trên 1 dòng */
+    overflow: hidden;    /* 4. Ẩn phần chữ thừa nếu quá dài (tùy chọn) */
+    text-overflow: ellipsis; /* 5. Hiện dấu ... nếu chữ quá dài (tùy chọn) */
+}
+
+/* 1. Admin Hệ Thống (Màu Đỏ Quyền Lực) */
+.badge-gradient-red {
+    background: linear-gradient(to right, #ff5e62, #ff9966);
+}
+
+/* 2. Admin Bến Xe (Màu Cam - Dùng class bạn gửi) */
+.badge-gradient-cam {
+    background: linear-gradient(to right, #ffbf96, #fe7096);
+}
+
+/* 3. Nhân Viên Bán Vé (Màu Xanh Lá - Dùng class bạn gửi) */
+.badge-gradient-green {
+    background: linear-gradient(to right, #84d9d2, #07cdae);
+}
+
+/* 4. Khách Hàng (Màu Xanh Dương - Dùng class bạn gửi) */
+.badge-gradient-blue {
+    background: linear-gradient(to right, #90caf9, #047edf);
+}
+
+/* 5. Tài Xế (Màu Vàng/Nâu Đất) */
+.badge-gradient-yellow {
+    background: linear-gradient(to right, #f6d365, #fda085);
+}
+
+
+
+
+/* --- TRANG TRÍ HOMEPAGE MỚI --- */
+
+/* 1. Phần Why Choose Us */
+.features-section {
+    background-color: #f8f9fa; /* Màu nền xám nhẹ */
+}
+.feature-box {
+    text-align: center;
+    padding: 30px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+.feature-box:hover {
+    transform: translateY(-10px); /* Bay lên nhẹ khi hover */
+}
+.feature-icon-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Màu tím xanh */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 32px;
+}
+
+/* 2. Nâng cấp hiệu ứng Card chuyến đi cũ */
+.futa-card {
+    transition: all 0.3s ease;
+}
+.futa-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* 3. Banner Khuyến mãi */
+.promo-banner {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%); /* Màu đen xám sang trọng */
+    color: white;
+    border-radius: 20px;
+    padding: 50px;
+    position: relative;
+    overflow: hidden;
+}
+/* Tạo hiệu ứng hình tròn mờ trang trí nền */
+.promo-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+/* 4. Phần Đánh giá khách hàng (Testimonials) */
+.testimonial-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    position: relative;
+    border-top: 5px solid #6a11cb; /* Viền màu trên cùng */
+}
+.testimonial-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #f8f9fa;
+}
+.quote-icon {
+    font-size: 40px;
+    color: #e9ecef;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+/* 5. Footer Nâng cao */
+.footer-advanced {
+    background-color: #1a1c20;
+    color: #adb5bd;
+    padding-top: 60px;
+    padding-bottom: 30px;
+}
+.footer-advanced h5 {
+    color: white;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+.footer-links li {
+    margin-bottom: 15px;
+}
+.footer-links a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.footer-links a:hover {
+    color: #6a11cb; /* Màu tím khi hover */
+}
+.social-icons a {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    margin-right: 10px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+.social-icons a:hover {
+    background: #6a11cb;
+}
+.footer-bottom {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    font-size: 14px;
 }
