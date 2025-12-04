@@ -88,9 +88,13 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <div class="input-group">
+                    <div class="input-group mb-3" style="max-width: 400px;">
                         <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                        <input type="text" class="form-control" id="searchXe" placeholder="Tìm biển số xe..." onkeyup="filterXe()">
+                        <input type="text" class="form-control border-0 bg-light" id="searchXe" placeholder="Tìm biển số xe..." onkeyup="filterXe()">
+                        <!-- Button reset -->
+                        <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -144,7 +148,7 @@
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>
                             <select class="form-select" id="trangThai">
-                                <option value="DangCho">Sẵn sàng (Đang chờ)</option>
+                                <option value="DangCho">Sẵn sàng</option>
                                 <option value="BaoDuong">Đang bảo dưỡng</option>
                             </select>
                         </div>
@@ -192,8 +196,8 @@
 
             data.forEach(xe => {
                 let statusBadge = xe.trangThai === 'DangCho' 
-                    ? '<label class="badge badge-gradient-success">Sẵn sàng</label>' 
-                    : '<label class="badge badge-gradient-warning text-dark">Bảo dưỡng</label>';
+                    ? '<label class="badge-gradient-base badge-gradient-green">Sẵn sàng</label>' 
+                    : '<label class="badge-gradient-base badge-gradient-red">Bảo dưỡng</label>';
 
                 tbody.innerHTML += `
                     <tr>
@@ -219,6 +223,13 @@
             const keyword = document.getElementById('searchXe').value.toLowerCase();
             const filtered = allXe.filter(x => x.bienSo.toLowerCase().includes(keyword));
             renderTable(filtered);
+        }
+
+        function resetFilter() {
+            // Xóa giá trị chọn
+            document.getElementById('searchXe').value = "";
+            // Render lại toàn bộ danh sách gốc
+            renderTable(allXe);
         }
 
         // 4. Modal Thêm

@@ -52,7 +52,7 @@
 
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="fa-solid fa-power-off"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="menu-title">Đăng xuất</span>
                 </a>
             </li>
@@ -81,12 +81,8 @@
         <div class="content-wrapper p-4">
             
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                
-
                 <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-city"></i>
-                    </span> Quản lý Tỉnh Thành
+                    <i class="fa-solid fa-city"></i> Quản lý tỉnh thành
                 </h3>
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Thêm Tỉnh Mới
@@ -98,6 +94,10 @@
                     <div class="input-group mb-3" style="max-width: 400px;">
                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
                         <input type="text" class="form-control border-0 bg-light" id="searchTinh" placeholder="Tìm kiếm tên tỉnh..." onkeyup="filterTinh()">
+                        <!-- Button reset -->
+                        <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>   
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -195,6 +195,13 @@
             const keyword = document.getElementById('searchTinh').value.toLowerCase();
             const filtered = allTinh.filter(t => t.tenTinh.toLowerCase().includes(keyword));
             renderTable(filtered);
+        }
+
+        function resetFilter() {
+            // Xóa giá trị chọn
+            document.getElementById('searchTinh').value = "";
+            // Render lại toàn bộ danh sách gốc
+            renderTable(allTinh);
         }
 
         // 4. Modal Thêm

@@ -63,6 +63,18 @@ const capNhatTuyen = async (req, res) => {
     }
 };
 
+const xoaTuyen = async (req, res) => {
+    try {
+        const tuyen = await TuyenXe.findByIdAndDelete(req.params.id); // <--- Xóa trực tiếp
+        if (!tuyen) {
+            return res.status(404).json({ message: 'Không tìm thấy tuyến' });
+        }
+        res.json({ message: 'Xóa thành công' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Nhớ export thêm hàm này:
-module.exports = { layDsTuyen, taoTuyen, capNhatTuyen };
+module.exports = { layDsTuyen, taoTuyen, capNhatTuyen, xoaTuyen};
 

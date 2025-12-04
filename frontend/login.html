@@ -3,36 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Hệ thống Vé Xe</title>
+    <title>Đăng nhập - THT BUSLINE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body { background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .login-card { width: 100%; max-width: 400px; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: white; }
+        
+        body {
+            background-color: #f2edf3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. Navbar tối giản chỉ có Logo ở giữa */
+        .navbar-login {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+        }
+        .brand-text {
+            color: #9a55ff;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        /* 2. Card Login chia đôi */
+        .login-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .card-split {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px; /* (Hoặc 650px ở trang Register) */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-split .row {
+            flex-grow: 1;
+        }
+
+        /* Phần ảnh bên trái */
+        .bg-login-image {
+            background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1974&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        /* Lớp phủ màu tím đè lên ảnh (Overlay) */
+        .bg-login-image::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(154, 85, 255, 0.85) 0%, rgba(218, 140, 255, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .bg-login-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Phần Form bên phải */
+        .login-form-container {
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .form-control-custom {
+            border-radius: 50px;
+            padding: 12px 20px;
+            border: 1px solid #e0e0e0;
+            background-color: #f8f9fa;
+            padding-left: 45px; /* Chừa chỗ cho icon */
+            transition: all 0.3s;
+        }
+        .form-control-custom:focus {
+            border-color: #9a55ff;
+            box-shadow: 0 0 0 0.2rem rgba(154, 85, 255, 0.25);
+            background: white;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            z-index: 10;
+        }
+
+        .btn-login {
+            border-radius: 50px;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            background: linear-gradient(to right, #da8cff, #9a55ff);
+            border: none;
+            color: white;
+            width: 100%;
+            transition: opacity 0.3s;
+        }
+        .btn-login:hover {
+            opacity: 0.9;
+            color: white;
+        }
+
+        .social-login a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            color: #555;
+            margin: 0 5px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .social-login a:hover {
+            background-color: #f2edf3;
+            color: #9a55ff;
+            border-color: #9a55ff;
+        }
+
+        /* Responsive: Ẩn ảnh trên mobile */
+        @media (max-width: 991px) {
+            .bg-login-image { display: none; }
+            .login-form-container { padding: 30px; }
+        }
     </style>
 </head>
 <body>
+    <nav class="navbar-login sticky-top">
+        <div class="container text-center">
+            <a href="index.html" class="brand-text">
+                <i class="fa-solid fa-bus-simple me-2"></i> THT BUSLINE
+            </a>
+        </div>
+    </nav>
 
-    <div class="login-card">
-        <h3 class="text-center mb-4 text-primary fw-bold">ĐĂNG NHẬP</h3>
-        
-        <div id="error-msg" class="alert alert-danger" style="display: none;"></div>
+    <div class="login-wrapper">
+        <div class="card-split">
+            <div class="row g-0 h-100">
+                <div class="col-lg-6 bg-login-image">
+                    <div class="bg-login-content">
+                        <h2 class="fw-bold mb-3 display-6">Chào mừng trở lại!</h2>
+                        <p class="lead opacity-75">"Vạn dặm bình an - Trọn niềm vui"</p>
+                        <p class="small">Kết nối những hành trình, mang yêu thương về nhà.</p>
+                        <div class="mt-4">
+                            <a href="index.html" class="btn btn-outline-light rounded-pill px-4">Xem chuyến xe</a>
+                        </div>
+                    </div>
+                </div>
 
-        <form id="loginForm">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" required placeholder="admin@example.com">
+                <div class="col-lg-6">
+                    <div class="login-form-container">
+                        <div class="text-center mb-4">
+                            <h3 class="fw-bold text-primary" style="color: #9a55ff !important;">Đăng nhập tài khoản</h3>
+                            <!-- <p class="text-muted small">Nhập thông tin tài khoản của bạn để tiếp tục</p> -->
+                        </div>
+
+                        <div id="error-msg" class="alert alert-danger rounded-pill text-center small py-2" style="display: none;"></div>
+
+                        <form id="loginForm">
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                                <input type="email" class="form-control form-control-custom" id="email" required placeholder="Email">
+                            </div>
+                            
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" class="form-control form-control-custom" id="password" required placeholder="Mật khẩu">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4 small">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label text-muted" for="rememberMe">Ghi nhớ tôi</label>
+                                </div>
+                                <a href="#" class="text-decoration-none" style="color: #9a55ff;">Quên mật khẩu?</a>
+                            </div>
+
+                            <button type="submit" class="btn-login shadow">ĐĂNG NHẬP</button>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <p class="small text-muted mb-3">Hoặc đăng nhập với</p>
+                            <div class="social-login">
+                                <a href="#"><i class="fa-brands fa-google"></i></a>
+                                <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                                <a href="#"><i class="fa-brands fa-apple"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4 pt-3 border-top">
+                            <span class="small text-muted">Bạn chưa có tài khoản?</span>
+                            <a href="register.html" class="fw-bold text-decoration-none ms-1" style="color: #9a55ff;">Đăng ký ngay</a>
+                            <br>
+                            <a href="index.html" class="text-secondary small">← Về trang chủ</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Mật khẩu</label>
-                <input type="password" class="form-control" id="password" required placeholder="Nhập mật khẩu">
-            </div>
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Đăng nhập</button>
-        </form>
-
-        <div class="text-center mt-3">
-            <a href="register.html" class="text-decoration-none">Chưa có tài khoản? Đăng ký ngay</a>
-            <br>
-            <a href="index.html" class="text-secondary small">← Về trang chủ</a>
         </div>
     </div>
 

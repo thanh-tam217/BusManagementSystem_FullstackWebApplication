@@ -79,11 +79,10 @@
 
         <div class="content-wrapper p-4">
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-landmark"></i>
-                    </span> Quản lý Bến Xe
+                <h3 class="page-title fw-bold mb-0">
+                    <i class="fa-solid fa-landmark"></i> Quản lý bến xe
                 </h3>
+                
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Thêm Bến Mới
                 </button>
@@ -103,8 +102,16 @@
                             <label class="small text-muted fw-bold">Tìm kiếm chung</label>
                             <input type="text" class="form-control bg-light border-0" id="searchKeyword" placeholder="Nhập tên bến, địa chỉ, người quản lý...">
                         </div>
+
+                        
+
                         <div class="col-md-2">
-                            <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterBen()">
+                            <!-- Button reset -->
+                            <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            <!-- Button search  -->
+                            <button class="btn btn-inverse-info flex-grow-1 fw-bold" onclick="filterBen()">
                                 <i class="fa-solid fa-search me-1"></i> Tìm
                             </button>
                         </div>
@@ -284,6 +291,14 @@
                 return matchTinh && matchKeyword;
             });
             renderTable(filtered);
+        }
+
+        function resetFilter() {
+            // Xóa giá trị chọn
+            document.getElementById('filterTinh').value = "";
+            document.getElementById('searchKeyword').value = "";
+            // Render lại toàn bộ danh sách gốc
+            renderTable(allBen);
         }
 
         // 5. Modal Add

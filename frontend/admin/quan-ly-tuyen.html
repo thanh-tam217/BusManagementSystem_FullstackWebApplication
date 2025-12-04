@@ -52,7 +52,7 @@
 
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="fa-solid fa-power-off"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="menu-title">Đăng xuất</span>
                 </a>
             </li>
@@ -79,10 +79,8 @@
 
         <div class="content-wrapper p-4">
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                    </span> Quản lý Tuyến Đường
+                <h3 class="page-title fw-bold mb-0">
+                    <i class="fa-solid fa-map-location-dot"></i> Quản lý tuyến xe
                 </h3>
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Thêm Tuyến Mới
@@ -250,7 +248,7 @@
                             <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${tuyen._id}')">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="alert('Chức năng xóa đang phát triển')">
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteTuyen('${tuyen._id}')">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -307,6 +305,8 @@
             new bootstrap.Modal(document.getElementById('tuyenModal')).show();
         }
 
+        
+
         document.getElementById('tuyenForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('tuyenId').value;
@@ -344,6 +344,28 @@
                 }
             } catch (error) { console.error(error); }
         });
+
+
+
+        async function deleteTuyen(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa tuyến này?')) return;
+            const token = localStorage.getItem('token');
+
+            try {
+                const res = await fetch(`${API_URL}/tuyen-xe/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    alert('Xóa thành công!');
+                    loadTuyen();
+                } else {
+                    const err = await res.json();
+                    alert(err.message);
+                }
+            } catch (error) { console.error(error); }
+        }
 
         loadDropdownTinh();
         loadTuyen();

@@ -52,7 +52,7 @@
 
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="fa-solid fa-power-off"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="menu-title">Đăng xuất</span>
                 </a>
             </li>
@@ -79,10 +79,8 @@
 
         <div class="content-wrapper p-4">
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-users"></i>
-                    </span> Quản lý Tài Khoản
+                <h3 class="page-title fw-bold mb-0">
+                    <i class="fa-solid fa-users"></i> Quản lý Tài Khoản
                 </h3>
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-user-plus me-1"></i> Tạo tài khoản mới
@@ -298,25 +296,62 @@
         }
 
         // 5. Logic Tìm kiếm & Lọc
+        // function filterUser() {
+        //     const role = document.getElementById('filterRole').value;
+        //     const benId = document.getElementById('filterBen').value;
+        //     const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+
+        //     const filtered = allUsers.filter(u => {
+        //         // Lọc theo Vai trò
+        //         const matchRole = role === "" || u.vaiTro === role;
+                
+        //         // Lọc theo Bến (cần lấy id từ object maBenQuanLy)
+        //         const idBenDB = u.maBenQuanLy ? u.maBenQuanLy._id : "";
+        //         const matchBen = benId === "" || idBenDB === benId;
+
+        //         // Lọc theo Từ khóa
+        //         const textData = (u.hoTen + u.email + u.soDienThoai).toLowerCase();
+        //         const matchKeyword = textData.includes(keyword);
+
+        //         return matchRole && matchBen && matchKeyword;
+        //     });
+        //     renderTable(filtered);
+        // }
+
+        // Hàm tìm kiếm và lọc tổng hợp
         function filterUser() {
+            // 1. Lấy giá trị từ các ô input/select
             const role = document.getElementById('filterRole').value;
             const benId = document.getElementById('filterBen').value;
-            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+            
+            // Lấy từ khóa, xóa khoảng trắng đầu đuôi và chuyển về chữ thường
+            const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
 
+            // 2. Lọc dữ liệu từ mảng allUsers (biến toàn cục chứa danh sách user)
             const filtered = allUsers.filter(u => {
-                // Lọc theo Vai trò
+                // --- Logic lọc Vai trò ---
                 const matchRole = role === "" || u.vaiTro === role;
                 
-                // Lọc theo Bến (cần lấy id từ object maBenQuanLy)
+                // --- Logic lọc Bến ---
                 const idBenDB = u.maBenQuanLy ? u.maBenQuanLy._id : "";
                 const matchBen = benId === "" || idBenDB === benId;
 
-                // Lọc theo Từ khóa
-                const textData = (u.hoTen + u.email + u.soDienThoai).toLowerCase();
-                const matchKeyword = textData.includes(keyword);
+                // --- Logic Tìm kiếm chung (Tên, Email, SĐT) ---
+                // Kiểm tra an toàn: Nếu dữ liệu null thì gán chuỗi rỗng để không bị lỗi code
+                const name = u.hoTen ? u.hoTen.toLowerCase() : "";
+                const email = u.email ? u.email.toLowerCase() : "";
+                const phone = u.soDienThoai ? u.soDienThoai : "";
 
+                // Kiểm tra từ khóa có xuất hiện trong Tên HOẶC Email HOẶC SĐT không
+                const matchKeyword = name.includes(keyword) || 
+                                    email.includes(keyword) || 
+                                    phone.includes(keyword);
+
+                // Trả về true nếu thỏa mãn TẤT CẢ các điều kiện
                 return matchRole && matchBen && matchKeyword;
             });
+
+            // 3. Render lại bảng
             renderTable(filtered);
         }
 
@@ -434,8 +469,14 @@
             });
             loadUsers();
         }
-
-        loadUsers();
+        document.getElementById('searchKeyword').addEventListener('keyup', function(e) {
+            // Nếu người dùng ấn Enter (key code 13)
+            if (e.key === 'Enter') {
+                filterUser();
+            }
+            // Hoặc nếu muốn tìm ngay khi gõ (Real-time search) thì bỏ dòng if đi, gọi thẳng filterUser()
+        });
+                loadUsers();
         loadBenDropdown();
     </script>
 </body>
