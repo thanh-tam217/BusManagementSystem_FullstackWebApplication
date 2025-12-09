@@ -189,46 +189,37 @@ body {
 
 
 /* --- BỘ BADGE GRADIENT MỚI --- */
-
-/* Class chung cho Badge để không phải viết lại padding/border nhiều lần */
 .badge-gradient-base {
     color: white;
     border: none;
-    padding: 8px 10px; /* Giảm padding trái phải một chút */
+    padding: 8px 10px; 
     border-radius: 50px;
     font-size: 12px;
     font-weight: 600;
     display: inline-block;
-
-    /* --- CÁC DÒNG MỚI ĐỂ CHỈNH CÙNG CHIỀU RỘNG --- */
-    width: 140px;        /* 1. Thiết lập chiều rộng cố định (Bạn có thể tăng/giảm số này) */
-    text-align: center;  /* 2. Canh giữa chữ trong khung */
-    white-space: nowrap; /* 3. Giữ chữ luôn nằm trên 1 dòng */
-    overflow: hidden;    /* 4. Ẩn phần chữ thừa nếu quá dài (tùy chọn) */
-    text-overflow: ellipsis; /* 5. Hiện dấu ... nếu chữ quá dài (tùy chọn) */
+    width: 140px;        
+    text-align: center;  
+    white-space: nowrap; 
+    overflow: hidden;    
+    text-overflow: ellipsis; 
 }
 
-/* 1. Admin Hệ Thống (Màu Đỏ Quyền Lực) */
 .badge-gradient-red {
     background: linear-gradient(to right, #ff5e62, #ff9966);
 }
 
-/* 2. Admin Bến Xe (Màu Cam - Dùng class bạn gửi) */
 .badge-gradient-cam {
     background: linear-gradient(to right, #ffbf96, #fe7096);
 }
 
-/* 3. Nhân Viên Bán Vé (Màu Xanh Lá - Dùng class bạn gửi) */
 .badge-gradient-green {
     background: linear-gradient(to right, #84d9d2, #07cdae);
 }
 
-/* 4. Khách Hàng (Màu Xanh Dương - Dùng class bạn gửi) */
 .badge-gradient-blue {
     background: linear-gradient(to right, #90caf9, #047edf);
 }
 
-/* 5. Tài Xế (Màu Vàng/Nâu Đất) */
 .badge-gradient-yellow {
     background: linear-gradient(to right, #f6d365, #fda085);
 }

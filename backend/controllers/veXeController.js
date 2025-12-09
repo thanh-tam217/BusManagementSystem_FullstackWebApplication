@@ -119,6 +119,25 @@ const capNhatThanhToan = async (req, res) => {
     }
 };
 
+const huyVe = async (req, res) => {
+    try {
+        const ve = await VeXe.findById(req.params.id).populate('maChuyen');
+
+        if (!ve) {
+            return res.status(404).json({ message: 'Không tìm thấy vé' });
+        }
+
+        // Kiểm tra logic: Nếu xe đã chạy rồi thì có cho hủy không? (Tùy chọn)
+        // Hiện tại tôi cho phép hủy thoải mái để bạn test
+        
+        ve.trangThaiThanhToan = 'Huy';
+        await ve.save();
+
+        res.json({ message: 'Đã hủy vé thành công, ghế đã được giải phóng.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // Nhớ export thêm hàm này:
-module.exports = { datVe, layVeCuaToi, layGheDaDat, traCuuVe, capNhatThanhToan };
+module.exports = { datVe, layVeCuaToi, layGheDaDat, traCuuVe, capNhatThanhToan, huyVe };

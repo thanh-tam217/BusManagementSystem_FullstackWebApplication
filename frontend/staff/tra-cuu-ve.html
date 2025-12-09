@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tra Cứu Vé - Purple Staff</title>
+    <title>Tra Cứu Vé</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -11,7 +11,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-ticket me-2" style="color: #9a55ff;"></i> TICKET
+            <i class="fa-solid fa-ticket me-2" style="color: #9a55ff;"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -30,6 +30,12 @@
                 <a class="nav-link active" href="tra-cuu-ve.html">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <span class="menu-title">Tra cứu vé</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="profile.html">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span class="menu-title">Thông tin cá nhân</span>
                 </a>
             </li>
             <li class="nav-item mt-5">
@@ -83,12 +89,13 @@
                                 <table class="table table-hover align-middle">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th>Mã Vé</th>
+                                            <!-- <th>Mã Vé</th> -->
                                             <th>Khách Hàng</th>
                                             <th>Hành Trình</th>
-                                            <th>Ghế</th>
-                                            <th>Giá Vé</th>
-                                            <th>Ngày Bán</th>
+                                            <th class="text-center">Ghế</th>
+                                            <th class="text-center">Giá Vé</th>
+                                            <th class="text-center">Ngày Bán</th>
+                                            <th class="text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="table-result">
@@ -142,18 +149,49 @@
                 data.forEach(ve => {
                     const gia = new Intl.NumberFormat('vi-VN').format(ve.tongTien);
                     
-                    // Xử lý hiển thị Bến (fallback nếu chưa populate đủ)
-                    const benDi = ve.maChuyen.benKhoiHanh ? ve.maChuyen.benKhoiHanh.tenBen : 'Bến đi';
-                    const benDen = ve.maChuyen.benDen ? ve.maChuyen.benDen.tenBen : 'Bến đến';
+                    // --- SỬA LỖI Ở ĐÂY: KIỂM TRA DỮ LIỆU AN TOÀN ---
                     
-                    const timeStart = new Date(ve.maChuyen.thoiGianKhoiHanh).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'});
+                    let benDi = '---';
+                    let benDen = '---';
+                    let timeStart = '---';
+                    let statusClass = '';
+
+                    // Kiểm tra xem chuyến xe có tồn tại không (Tránh lỗi null)
+                    if (ve.maChuyen) {
+                        // Nếu chuyến còn tồn tại, lấy thông tin bình thường
+                        benDi = ve.maChuyen.benKhoiHanh ? ve.maChuyen.benKhoiHanh.tenBen : 'Bến đi (?)';
+                        benDen = ve.maChuyen.benDen ? ve.maChuyen.benDen.tenBen : 'Bến đến (?)';
+                        
+                        if (ve.maChuyen.thoiGianKhoiHanh) {
+                            timeStart = new Date(ve.maChuyen.thoiGianKhoiHanh).toLocaleString('vi-VN', {
+                                hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'
+                            });
+                        }
+                    } else {
+                        // Nếu chuyến bị xóa (ve.maChuyen == null)
+                        benDi = '<span class="text-danger fw-bold">Chuyến đã hủy/xóa</span>';
+                        benDen = '';
+                        statusClass = 'table-danger'; // Tô đỏ dòng này để cảnh báo
+                    }
+                    
                     const ngayDat = new Date(ve.ngayDat).toLocaleString('vi-VN');
 
+                    // ------------------------------------------------
+
+                    let actionBtn = '';
+                    if (ve.trangThaiThanhToan !== 'Huy') {
+                        actionBtn = `
+                            <button class="btn btn-sm btn-outline-danger" onclick="cancelTicket('${ve._id}')" title="Hủy vé này">
+                                <i class="fa-solid fa-xmark"></i> Hủy
+                            </button>
+                        `;
+                    } else {
+                        actionBtn = '<span class="text-muted small fst-italic">Đã hủy</span>';
+                        statusClass = 'table-secondary'; // Làm mờ dòng đã hủy
+                    }
+
                     tbody.innerHTML += `
-                        <tr>
-                            <td>
-                                <span class="badge bg-light text-dark border">#${ve._id.slice(-6).toUpperCase()}</span>
-                            </td>
+                        <tr class="${statusClass}">
                             <td>
                                 <div class="fw-bold text-dark">${ve.tenKhach || 'Khách lẻ'}</div>
                                 <small class="text-muted"><i class="fa-solid fa-phone me-1" style="font-size: 0.8em"></i>${ve.sdtKhach || '---'}</small>
@@ -162,11 +200,17 @@
                                 <div class="fw-bold text-primary" style="font-size: 0.95em;">${benDi} <i class="fa-solid fa-arrow-right mx-1 text-muted small"></i> ${benDen}</div>
                                 <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${timeStart}</small>
                             </td>
-                            <td>
-                                <span class="badge badge-gradient-info fs-6">${ve.maGhe}</span>
+                            <td class="text-center">
+                                <span class="fw-bold text-dark">${ve.maGhe.join(', ')}</span>
                             </td>
-                            <td class="fw-bold text-danger">${gia} đ</td>
-                            <td class="small text-muted">${ngayDat}</td>
+                            
+                            <td class="fw-bold text-danger text-center">${gia} đ</td>
+                            
+                            <td class="small text-muted text-center">${ngayDat}</td>
+                            
+                            <td class="text-center">
+                                ${actionBtn}
+                            </td>
                         </tr>
                     `;
                 });
@@ -174,6 +218,34 @@
             } catch (error) { 
                 console.error(error); 
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Lỗi kết nối server!</td></tr>';
+            }
+        }
+
+        // Hàm Hủy vé
+        async function cancelTicket(id) {
+            if (!confirm('Bạn có chắc chắn muốn HỦY vé này không? ')) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_URL}/ve-xe/huy/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Đã hủy vé thành công!');
+                    loadAllTickets(); // Tải lại danh sách để cập nhật trạng thái
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi kết nối server!');
             }
         }
 

@@ -32,10 +32,21 @@ const nguoiDungSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Middleware: Tự động mã hóa mật khẩu trước khi Lưu
+// nguoiDungSchema.pre('save', async function(next) {
+//     if (!this.isModified('matKhau')) {
+//         next();
+//     }
+//     const salt = await bcrypt.genSalt(10);
+//     this.matKhau = await bcrypt.hash(this.matKhau, salt);
+// });
+
 nguoiDungSchema.pre('save', async function(next) {
+    // 1. Nếu mật khẩu không bị sửa đổi -> Bỏ qua và Return ngay
     if (!this.isModified('matKhau')) {
-        next();
+        return;
     }
+
+    // 2. Nếu có sửa đổi -> Mã hóa
     const salt = await bcrypt.genSalt(10);
     this.matKhau = await bcrypt.hash(this.matKhau, salt);
 });

@@ -2,21 +2,29 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Vé Của Tôi - VEXE RERE</title>
+    <title>Vé Của Tôi - THT BUSLINE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-light">
+<body style="background-color: #f8f9fa;">
 
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold text-primary" href="index.html">
-                <i class="fa-solid fa-bus-simple me-2"></i> VEXE RERE
+                <i class="fa-solid fa-bus me-2"></i>FUTA BUS
             </a>
-            <div class="d-flex align-items-center">
-                <a href="index.html" class="btn btn-light rounded-pill me-2"><i class="fa-solid fa-arrow-left me-1"></i> Trang chủ</a>
-                <button class="btn btn-outline-danger rounded-pill" onclick="logout()">Đăng xuất</button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="ve-cua-toi.html">Vé của tôi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile-customer.html">Tài khoản</a></li>
+                    
+                    <li class="nav-item ms-3" id="nav-auth"></li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -47,10 +55,37 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        const user = localStorage.getItem('user');
+        const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
         if(!user) window.location.href = 'login.html';
+
+        // --- LOGIC RENDER DROPDOWN (Copy từ index.html) ---
+        let dashboardLink = '';
+        if(user.vaiTro === 'AdminHeThong') {
+            dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard-system.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Quản trị hệ thống</a></li><li><hr class="dropdown-divider"></li>';
+        } else if(user.vaiTro === 'AdminBenXe') {
+            dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard-station.html"><i class="fa-solid fa-building me-2 text-primary"></i>Quản lý bến</a></li><li><hr class="dropdown-divider"></li>';
+        } else if(user.vaiTro === 'NhanVienBanVe') {
+            dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard.html"><i class="fa-solid fa-desktop me-2 text-primary"></i>Bàn làm việc</a></li><li><hr class="dropdown-divider"></li>';
+        }
+
+        document.getElementById('nav-auth').innerHTML = `
+            <div class="dropdown">
+                <button class="btn btn-light rounded-pill px-3 border dropdown-toggle fw-bold text-dark d-flex align-items-center shadow-sm" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://ui-avatars.com/api/?name=${user.hoTen}&background=random" class="rounded-circle me-2" width="32" height="32">
+                    <span>${user.hoTen}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 220px;">
+                    ${dashboardLink}
+                    <li><a class="dropdown-item py-2" href="profile-customer.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> Thông tin cá nhân</a></li>
+                    <li><a class="dropdown-item py-2" href="ve-cua-toi.html"><i class="fa-solid fa-ticket me-2 text-muted"></i> Vé của tôi</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-power-off me-2"></i> Đăng xuất</a></li>
+                </ul>
+            </div>
+        `;
 
         // 1. Hàm tải danh sách vé
         async function loadVe() {

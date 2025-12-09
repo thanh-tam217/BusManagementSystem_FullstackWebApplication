@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { datVe, layVeCuaToi, layGheDaDat, traCuuVe, capNhatThanhToan } = require('../controllers/veXeController');
+const { datVe, layVeCuaToi, layGheDaDat, traCuuVe, capNhatThanhToan, huyVe } = require('../controllers/veXeController');
 const { baoVe } = require('../middleware/authMiddleware');
 
 // Khách đặt vé (Cần đăng nhập)
@@ -15,5 +15,7 @@ router.get('/theo-chuyen/:maChuyen', layGheDaDat);
 router.get('/tra-cuu', traCuuVe);
 
 router.post('/cap-nhat-thanh-toan', capNhatThanhToan); // Không cần baoVe để VNPay gọi (hoặc client gọi nhanh)
+
+router.put('/huy/:id', baoVe, huyVe);
 
 module.exports = router;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bán Vé Tại Quầy - Purple Staff</title>
+    <title>Bán Vé Tại Quầy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -132,7 +132,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo text-success">
-            <i class="fa-solid fa-ticket me-2"></i> TICKET
+            <i class="fa-solid fa-ticket me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -151,6 +151,12 @@
                 <a class="nav-link" href="tra-cuu-ve.html">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <span class="menu-title">Tra cứu vé</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="profile.html">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span class="menu-title">Thông tin cá nhân</span>
                 </a>
             </li>
             <li class="nav-item mt-5">
@@ -197,13 +203,33 @@
                         <div class="card-body">
                             <h4 class="card-title mb-4"><i class="fa-solid fa-filter me-2 text-primary"></i> Tìm Chuyến Xe</h4>
                             
-                            <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <label class="form-label fw-bold text-muted small text-uppercase">Tuyến Đường</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-map-location-dot text-primary"></i></span>
                                     <select class="form-select border-start-0 ps-0" id="chonTuyen" onchange="timChuyen()">
                                         <option value="">-- Chọn tuyến --</option>
                                         </select>
+                                </div>
+                            </div> -->
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Tuyến Đường</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fa-solid fa-map-location-dot text-primary"></i></span>
+                                        <select class="form-select" id="chonTuyen" onchange="timChuyen()">
+                                            <option value="">-- Đang tải tuyến... --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase mt-2">Ngày Khởi Hành</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fa-regular fa-calendar-days text-success"></i></span>
+                                        <input type="date" class="form-control fw-bold" id="ngayDi" onchange="timChuyen()">
+                                    </div>
                                 </div>
                             </div>
                             
@@ -316,28 +342,169 @@
         let selectedSeat = null;
 
         // 1. Load Tuyến
+        // async function loadTuyen() {
+        //     try {
+        //         const res = await fetch(`${API_URL}/tuyen-xe`);
+        //         const data = await res.json();
+        //         const select = document.getElementById('chonTuyen');
+        //         data.forEach(t => {
+        //             select.innerHTML += `<option value="${t._id}">${t.diemDi.tenTinh} ➝ ${t.diemDen.tenTinh}</option>`;
+        //         });
+        //     } catch (error) { console.error(error); }
+        // }
+
         async function loadTuyen() {
+            const select = document.getElementById('chonTuyen');
+            select.innerHTML = '<option value="">-- Chọn tuyến --</option>';
+
+            // Set mặc định ngày hiện tại cho ô input Date
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('ngayDi').value = `${yyyy}-${mm}-${dd}`;
+
             try {
-                const res = await fetch(`${API_URL}/tuyen-xe`);
-                const data = await res.json();
-                const select = document.getElementById('chonTuyen');
-                data.forEach(t => {
+                // A. Xác định Tỉnh của Nhân Viên
+                // Lấy danh sách bến để tìm bến của nhân viên
+                const resBen = await fetch(`${API_URL}/ben-xe`);
+                const allBen = await resBen.json();
+                
+                // Tìm bến mà nhân viên này thuộc về
+                // Lưu ý: user.maBenQuanLy có thể là string ID hoặc object (tùy lúc login), nên so sánh an toàn
+                const myStationId = user.maBenQuanLy._id || user.maBenQuanLy;
+                const myStation = allBen.find(b => b._id === myStationId);
+
+                let idTinhNhanVien = null;
+                if (myStation && myStation.maTinh) {
+                    idTinhNhanVien = myStation.maTinh._id; // Lấy ID Tỉnh
+                }
+
+                // B. Load Tuyến và Lọc
+                const resTuyen = await fetch(`${API_URL}/tuyen-xe`);
+                const allTuyen = await resTuyen.json();
+                
+                allTuyen.forEach(t => {
+                    // LOGIC QUAN TRỌNG: Chỉ hiện tuyến có Điểm Đi trùng với Tỉnh của Nhân viên
+                    if (idTinhNhanVien) {
+                        if (t.diemDi._id !== idTinhNhanVien) return; // Bỏ qua tuyến khác tỉnh
+                    }
+
                     select.innerHTML += `<option value="${t._id}">${t.diemDi.tenTinh} ➝ ${t.diemDen.tenTinh}</option>`;
                 });
+
             } catch (error) { console.error(error); }
         }
 
         // 2. Tìm chuyến
         // Thay thế hàm timChuyen() cũ bằng hàm này
+        // async function timChuyen() {
+        //     const maTuyen = document.getElementById('chonTuyen').value;
+        //     const dsChuyenDiv = document.getElementById('dsChuyen');
+            
+        //     // Reset UI
+        //     document.getElementById('box-dat-ve').style.display = 'none';
+        //     document.getElementById('empty-state').style.display = 'block';
+
+        //     if(!maTuyen) return;
+
+        //     dsChuyenDiv.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Đang tải lịch chạy...</p></div>';
+
+        //     try {
+        //         // Gọi API lấy chuyến
+        //         const res = await fetch(`${API_URL}/chuyen-xe`); 
+        //         let data = await res.json();
+                
+        //         // Lọc theo tuyến
+        //         data = data.filter(c => c.maTuyen && c.maTuyen._id === maTuyen);
+        //         document.getElementById('so-luong-chuyen').innerText = `${data.length} chuyến`;
+
+        //         dsChuyenDiv.innerHTML = '';
+        //         if(data.length === 0) {
+        //             dsChuyenDiv.innerHTML = '<div class="text-center text-muted p-4"><i class="fa-solid fa-calendar-xmark fs-3 mb-2"></i><p>Không tìm thấy chuyến nào.</p></div>';
+        //             return;
+        //         }
+
+        //         data.forEach(c => {
+        //             // 1. Xử lý Thời gian
+        //             const timeStart = new Date(c.thoiGianKhoiHanh);
+        //             const timeEnd = new Date(c.thoiGianDuKienDen);
+                    
+        //             // Format giờ (VD: 04:00)
+        //             const strTimeStart = timeStart.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        //             const strTimeEnd = timeEnd.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    
+        //             // Tính khoảng thời gian (VD: 3 giờ)
+        //             const durationMs = timeEnd - timeStart;
+        //             const durationHours = Math.floor(durationMs / (1000 * 60 * 60)); 
+                    
+        //             // Format Tiền
+        //             const gia = new Intl.NumberFormat('vi-VN').format(c.giaVe);
+
+        //             // 2. Xử lý Tên Bến (Sửa lỗi undefined)
+        //             // Nếu API chưa populate benDen, ta tạm dùng tên Tỉnh hoặc text mặc định
+        //             const tenBenDi = c.benKhoiHanh ? c.benKhoiHanh.tenBen : (c.maTuyen.diemDi.tenTinh + ' (Bến)');
+        //             const tenBenDen = c.benDen ? c.benDen.tenBen : (c.maTuyen.diemDen.tenTinh + ' (Bến)');
+
+        //             // 3. Render HTML kiểu Phương Trang
+        //             dsChuyenDiv.innerHTML += `
+        //                 <div class="futa-card p-3 mb-3 trip-item" 
+        //                     onclick="chonChuyen(this, '${c._id}', '${c.maXe.bienSo}', ${c.giaVe}, ${c.maXe.soGhe || 40}, '${strTimeStart}')">
+                            
+        //                     <div class="row align-items-center">
+        //                         <div class="col-md-8">
+        //                             <div class="d-flex align-items-center justify-content-between mb-2">
+        //                                 <div class="text-center">
+        //                                     <h4 class="fw-bold mb-0 text-dark">${strTimeStart}</h4>
+        //                                     <div class="point-start timeline-point my-1"></div>
+        //                                     <div class="small text-muted fw-bold" style="max-width: 100px;">${tenBenDi}</div>
+        //                                 </div>
+
+        //                                 <div class="flex-grow-1 px-2 text-center align-self-start mt-2">
+        //                                     <span class="duration-label">${durationHours} giờ</span>
+        //                                     <div class="timeline-line"></div>
+        //                                     <div class="small text-muted">(Asian/Ho Chi Minh)</div>
+        //                                 </div>
+
+        //                                 <div class="text-center">
+        //                                     <h4 class="fw-bold mb-0 text-dark">${strTimeEnd}</h4>
+        //                                     <div class="point-end timeline-point my-1"></div>
+        //                                     <div class="small text-muted fw-bold" style="max-width: 100px;">${tenBenDen}</div>
+        //                                 </div>
+        //                             </div>
+        //                         </div>
+
+        //                         <div class="col-md-4 text-end border-start ps-3">
+        //                             <div class="mb-2">
+        //                                 <span class="badge bg-light text-dark border me-1">${c.maXe.loaiXe || 'Xe khách'}</span>
+        //                                 <span class="text-success small fw-bold"><i class="fa-solid fa-chair me-1"></i>Còn chỗ</span>
+        //                             </div>
+        //                             <h4 class="text-danger fw-bold mb-2">${gia}đ</h4>
+        //                             <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Chọn chuyến</button>
+        //                         </div>
+        //                     </div>
+        //                 </div>
+        //             `;
+        //         });
+
+        //     } catch (error) { console.error(error); }
+        // }
+
         async function timChuyen() {
             const maTuyen = document.getElementById('chonTuyen').value;
+            const ngayDiVal = document.getElementById('ngayDi').value; // YYYY-MM-DD
+            
             const dsChuyenDiv = document.getElementById('dsChuyen');
             
             // Reset UI
             document.getElementById('box-dat-ve').style.display = 'none';
             document.getElementById('empty-state').style.display = 'block';
 
-            if(!maTuyen) return;
+            if(!maTuyen) {
+                dsChuyenDiv.innerHTML = '<div class="text-center text-muted p-5"><p>Vui lòng chọn tuyến xe.</p></div>';
+                document.getElementById('so-luong-chuyen').innerText = `0 chuyến`;
+                return;
+            }
 
             dsChuyenDiv.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Đang tải lịch chạy...</p></div>';
 
@@ -346,38 +513,52 @@
                 const res = await fetch(`${API_URL}/chuyen-xe`); 
                 let data = await res.json();
                 
-                // Lọc theo tuyến
-                data = data.filter(c => c.maTuyen && c.maTuyen._id === maTuyen);
-                document.getElementById('so-luong-chuyen').innerText = `${data.length} chuyến`;
+                // --- BỘ LỌC CHÍNH ---
+                const filteredData = data.filter(c => {
+                    // 1. Lọc theo Tuyến
+                    if (!c.maTuyen || c.maTuyen._id !== maTuyen) return false;
+
+                    // 2. Lọc theo Trạng thái (Chỉ hiện 'DangCho')
+                    if (c.trangThai !== 'DangCho') return false;
+
+                    // 3. Lọc theo Ngày
+                    if (ngayDiVal) {
+                        const tripDate = new Date(c.thoiGianKhoiHanh);
+                        const tripDateStr = tripDate.toISOString().split('T')[0]; // Lấy YYYY-MM-DD
+                        // So sánh ngày (User chọn ngày nào thì hiện ngày đó)
+                        // Nếu muốn hiện cả các ngày sau đó thì dùng >=
+                        if (tripDateStr !== ngayDiVal) return false;
+                    }
+
+                    return true;
+                });
+                // --------------------
+
+                document.getElementById('so-luong-chuyen').innerText = `${filteredData.length} chuyến`;
 
                 dsChuyenDiv.innerHTML = '';
-                if(data.length === 0) {
-                    dsChuyenDiv.innerHTML = '<div class="text-center text-muted p-4"><i class="fa-solid fa-calendar-xmark fs-3 mb-2"></i><p>Không tìm thấy chuyến nào.</p></div>';
+                if(filteredData.length === 0) {
+                    dsChuyenDiv.innerHTML = '<div class="text-center text-muted p-4"><i class="fa-solid fa-calendar-xmark fs-3 mb-2"></i><p>Không có chuyến nào phù hợp.</p></div>';
                     return;
                 }
 
-                data.forEach(c => {
-                    // 1. Xử lý Thời gian
+                filteredData.forEach(c => {
+                    // Logic render giữ nguyên như cũ
                     const timeStart = new Date(c.thoiGianKhoiHanh);
-                    const timeEnd = new Date(c.thoiGianDuKienDen);
-                    
-                    // Format giờ (VD: 04:00)
+                    let timeEnd;
+                    if (c.thoiGianDuKienDen) timeEnd = new Date(c.thoiGianDuKienDen);
+                    else timeEnd = new Date(timeStart.getTime() + (c.maTuyen.thoiGianDiChuyen || 0) * 60 * 60 * 1000);
+
                     const strTimeStart = timeStart.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
                     const strTimeEnd = timeEnd.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
                     
-                    // Tính khoảng thời gian (VD: 3 giờ)
                     const durationMs = timeEnd - timeStart;
                     const durationHours = Math.floor(durationMs / (1000 * 60 * 60)); 
-                    
-                    // Format Tiền
                     const gia = new Intl.NumberFormat('vi-VN').format(c.giaVe);
 
-                    // 2. Xử lý Tên Bến (Sửa lỗi undefined)
-                    // Nếu API chưa populate benDen, ta tạm dùng tên Tỉnh hoặc text mặc định
                     const tenBenDi = c.benKhoiHanh ? c.benKhoiHanh.tenBen : (c.maTuyen.diemDi.tenTinh + ' (Bến)');
                     const tenBenDen = c.benDen ? c.benDen.tenBen : (c.maTuyen.diemDen.tenTinh + ' (Bến)');
 
-                    // 3. Render HTML kiểu Phương Trang
                     dsChuyenDiv.innerHTML += `
                         <div class="futa-card p-3 mb-3 trip-item" 
                             onclick="chonChuyen(this, '${c._id}', '${c.maXe.bienSo}', ${c.giaVe}, ${c.maXe.soGhe || 40}, '${strTimeStart}')">
@@ -394,7 +575,7 @@
                                         <div class="flex-grow-1 px-2 text-center align-self-start mt-2">
                                             <span class="duration-label">${durationHours} giờ</span>
                                             <div class="timeline-line"></div>
-                                            <div class="small text-muted">(Asian/Ho Chi Minh)</div>
+                                            <div class="small text-muted text-nowrap">Xe ${c.maXe.bienSo}</div>
                                         </div>
 
                                         <div class="text-center">
@@ -411,7 +592,7 @@
                                         <span class="text-success small fw-bold"><i class="fa-solid fa-chair me-1"></i>Còn chỗ</span>
                                     </div>
                                     <h4 class="text-danger fw-bold mb-2">${gia}đ</h4>
-                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Chọn chuyến</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Chọn</button>
                                 </div>
                             </div>
                         </div>

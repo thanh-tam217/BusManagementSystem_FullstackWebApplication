@@ -4,12 +4,38 @@ const Xe = require('../models/Xe');
 
 // @desc    Lấy danh sách chuyến xe (Có lọc tìm kiếm cho khách)
 // @route   GET /api/chuyen-xe
+// const layDsChuyen = async (req, res) => {
+//     try {
+//         let query = {};
+        
+//         // Filter cho khách hàng tìm kiếm: diemDi, diemDen, ngayDi
+//         if (req.query.diemDi) query.diemDi = req.query.diemDi; // Cần xử lý join bảng phức tạp hơn nếu lọc theo Tỉnh, tạm thời để sau
+//         if (req.query.maBenKhoiHanh) query.benKhoiHanh = req.query.maBenKhoiHanh;
+        
+//         // Scope Control: Admin Bến chỉ xem chuyến của bến mình
+//         if (req.user && req.user.vaiTro === 'AdminBenXe') {
+//             query.benKhoiHanh = req.user.maBenQuanLy;
+//         }
+
+//         const dsChuyen = await ChuyenXe.find(query)
+//             .populate('maTuyen')
+//             .populate('maXe', 'bienSo loaiXe')
+//             .populate('benKhoiHanh', 'tenBen')
+//             .populate('benDen', 'tenBen');
+            
+//         res.json(dsChuyen);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+
 const layDsChuyen = async (req, res) => {
     try {
         let query = {};
         
-        // Filter cho khách hàng tìm kiếm: diemDi, diemDen, ngayDi
-        if (req.query.diemDi) query.diemDi = req.query.diemDi; // Cần xử lý join bảng phức tạp hơn nếu lọc theo Tỉnh, tạm thời để sau
+        // Filter cho khách hàng tìm kiếm
+        if (req.query.diemDi) query.diemDi = req.query.diemDi; 
         if (req.query.maBenKhoiHanh) query.benKhoiHanh = req.query.maBenKhoiHanh;
         
         // Scope Control: Admin Bến chỉ xem chuyến của bến mình
@@ -17,11 +43,27 @@ const layDsChuyen = async (req, res) => {
             query.benKhoiHanh = req.user.maBenQuanLy;
         }
 
+        // --- LOGIC MỚI: TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
+        // Tìm các chuyến đang "DangDi" hoặc "DangCho" mà thời gian dự kiến đến đã qua
+        const now = new Date();
+        
+        // Cập nhật các chuyến đã quá giờ đến -> Thành 'DaKetThuc'
+        await ChuyenXe.updateMany(
+            {
+                trangThai: { $in: ['DangCho', 'DangDi'] },
+                thoiGianDuKienDen: { $lt: now } // Giờ đến nhỏ hơn giờ hiện tại
+            },
+            { $set: { trangThai: 'DaKetThuc' } }
+        );
+        // ---------------------------------------------------
+
         const dsChuyen = await ChuyenXe.find(query)
             .populate('maTuyen')
             .populate('maXe', 'bienSo loaiXe')
+            .populate('maTaiXe', 'hoTen soDienThoai') // Populate thêm thông tin tài xế
             .populate('benKhoiHanh', 'tenBen')
-            .populate('benDen', 'tenBen');
+            .populate('benDen', 'tenBen')
+            .sort({ thoiGianKhoiHanh: -1 }); // Sắp xếp chuyến mới nhất lên đầu
             
         res.json(dsChuyen);
     } catch (error) {

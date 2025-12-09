@@ -419,10 +419,49 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
+        // const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        // if(user) {
+        //     document.getElementById('nav-auth').innerHTML = `<button class="btn btn-light rounded-pill px-3 border"><i class="fa-solid fa-user me-2"></i>${user.hoTen}</button> <button class="btn btn-outline-danger ms-2 rounded-pill" onclick="logout()">Logout</button>`;
+        //     document.getElementById('khach-ten').value = user.hoTen;
+        // }
+
         const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        
         if(user) {
-            document.getElementById('nav-auth').innerHTML = `<button class="btn btn-light rounded-pill px-3 border"><i class="fa-solid fa-user me-2"></i>${user.hoTen}</button> <button class="btn btn-outline-danger ms-2 rounded-pill" onclick="logout()">Logout</button>`;
-            document.getElementById('khach-ten').value = user.hoTen;
+            // Logic kiểm tra vai trò để hiển thị thêm nút về trang quản trị (nếu là Admin/Nhân viên)
+            let dashboardLink = '';
+            if(user.vaiTro === 'AdminHeThong') {
+                dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard-system.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Quản trị hệ thống</a></li><li><hr class="dropdown-divider"></li>';
+            } else if(user.vaiTro === 'AdminBenXe') {
+                dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard-station.html"><i class="fa-solid fa-building me-2 text-primary"></i>Quản lý bến</a></li><li><hr class="dropdown-divider"></li>';
+            } else if(user.vaiTro === 'NhanVienBanVe') {
+                dashboardLink = '<li><a class="dropdown-item" href="admin/dashboard.html"><i class="fa-solid fa-desktop me-2 text-primary"></i>Bàn làm việc</a></li><li><hr class="dropdown-divider"></li>';
+            }
+
+            // Render Dropdown Menu xịn xò
+            document.getElementById('nav-auth').innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-pill px-3 border dropdown-toggle fw-bold text-dark d-flex align-items-center shadow-sm" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://ui-avatars.com/api/?name=${user.hoTen}&background=random" class="rounded-circle me-2" width="32" height="32">
+                        <span>${user.hoTen}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 220px;">
+                        
+                        ${dashboardLink}
+
+                        <li><a class="dropdown-item py-2" href="profile-customer.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item py-2" href="ve-cua-toi.html"><i class="fa-solid fa-ticket me-2 text-muted"></i> Vé của tôi</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-power-off me-2"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
+            `;
+
+            // Tự điền tên vào form đặt vé (nếu có form trên trang)
+            const inputTen = document.getElementById('khach-ten');
+            if(inputTen) inputTen.value = user.hoTen;
         }
 
         async function loadTinh() {

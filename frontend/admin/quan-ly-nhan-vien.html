@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Nhân Viên - Purple Admin</title>
+    <title>Quản lý Nhân Viên</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus me-2"></i> STATION
+            <i class="fa-solid fa-bus me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -38,6 +38,12 @@
                 <a class="nav-link active" href="quan-ly-nhan-vien.html">
                     <i class="fa-solid fa-user-tie"></i>
                     <span class="menu-title">Nhân viên</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="profile-station.html">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span class="menu-title">Thông tin cá nhân</span>
                 </a>
             </li>
             <li class="nav-item mt-5">
@@ -180,6 +186,41 @@
         }
 
         // 2. Render Table
+        // function renderTable(data) {
+        //     const tbody = document.getElementById('table-staff');
+        //     tbody.innerHTML = '';
+
+        //     // Lọc bỏ chính mình (Admin đang đăng nhập) khỏi danh sách
+        //     const filteredData = data.filter(u => u._id !== user.id);
+
+        //     if (filteredData.length === 0) {
+        //         tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không tìm thấy nhân viên</td></tr>';
+        //         return;
+        //     }
+
+        //     filteredData.forEach(u => {
+        //         let roleBadge = u.vaiTro === 'NhanVienBanVe' 
+        //             ? '<span class="badge badge-gradient-success">Bán vé</span>' 
+        //             : '<span class="badge badge-gradient-warning text-dark">Tài xế</span>';
+
+        //         tbody.innerHTML += `
+        //             <tr>
+        //                 <td class="fw-bold">${u.hoTen}</td>
+        //                 <td>
+        //                     <div>${u.email}</div>
+        //                     <small class="text-muted">${u.soDienThoai}</small>
+        //                 </td>
+        //                 <td>${roleBadge}</td>
+        //                 <td>
+        //                     <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${u._id}')"><i class="fa-solid fa-pen"></i></button>
+        //                     <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteStaff('${u._id}')"><i class="fa-solid fa-trash"></i></button>
+        //                 </td>
+        //             </tr>
+        //         `;
+        //     });
+        // }
+
+        // 2. Render Table (Đã cập nhật CSS đẹp)
         function renderTable(data) {
             const tbody = document.getElementById('table-staff');
             tbody.innerHTML = '';
@@ -193,9 +234,15 @@
             }
 
             filteredData.forEach(u => {
-                let roleBadge = u.vaiTro === 'NhanVienBanVe' 
-                    ? '<span class="badge badge-gradient-success">Bán vé</span>' 
-                    : '<span class="badge badge-gradient-warning text-dark">Tài xế</span>';
+                // --- LOGIC CHỌN MÀU VÀ TÊN HIỂN THỊ ---
+                let badgeConfig = { text: 'Khác', css: 'badge-gradient-blue' };
+
+                if (u.vaiTro === 'NhanVienBanVe') {
+                    badgeConfig = { text: 'Bán vé', css: 'badge-gradient-green' };
+                } else if (u.vaiTro === 'TaiXe') {
+                    badgeConfig = { text: 'Tài xế', css: 'badge-gradient-yellow' };
+                }
+                // ---------------------------------------
 
                 tbody.innerHTML += `
                     <tr>
@@ -204,10 +251,18 @@
                             <div>${u.email}</div>
                             <small class="text-muted">${u.soDienThoai}</small>
                         </td>
-                        <td>${roleBadge}</td>
                         <td>
-                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${u._id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteStaff('${u._id}')"><i class="fa-solid fa-trash"></i></button>
+                            <span class="badge-gradient-base ${badgeConfig.css}">
+                                ${badgeConfig.text}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${u._id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteStaff('${u._id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;

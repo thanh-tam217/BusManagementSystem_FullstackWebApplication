@@ -106,6 +106,57 @@ const capNhatNguoiDung = async (req, res) => {
     }
 };
 
-// Nhớ export thêm hàm này:
-module.exports = { layDsNguoiDung, taoNguoiDung, xoaNguoiDung, capNhatNguoiDung };
+const layThongTinCaNhan = async (req, res) => {
+    try {
+        // req.user._id có được nhờ middleware baoVe giải mã token
+        const user = await NguoiDung.findById(req.user._id).select('-matKhau'); // Không trả về mật khẩu
 
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const capNhatThongTinCaNhan = async (req, res) => {
+    try {
+        // Lấy ID từ Token (req.user._id) thay vì params để bảo mật
+        const user = await NguoiDung.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+        }
+
+        // Cập nhật các trường cho phép
+        user.hoTen = req.body.hoTen || user.hoTen;
+        user.soDienThoai = req.body.soDienThoai || user.soDienThoai;
+        user.diaChi = req.body.diaChi || user.diaChi;
+        user.gioiTinh = req.body.gioiTinh || user.gioiTinh;
+        user.ngaySinh = req.body.ngaySinh || user.ngaySinh;
+
+        // Nếu muốn đổi mật khẩu
+        if (req.body.matKhauMoi) {
+            user.matKhau = req.body.matKhauMoi;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            hoTen: updatedUser.hoTen,
+            email: updatedUser.email,
+            vaiTro: updatedUser.vaiTro,
+            soDienThoai: updatedUser.soDienThoai,
+            maBenQuanLy: updatedUser.maBenQuanLy
+            // Đã xóa dòng token để tránh lỗi nếu chưa import
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Nhớ export thêm hàm này:
+module.exports = { layDsNguoiDung, taoNguoiDung, xoaNguoiDung, capNhatNguoiDung, capNhatThongTinCaNhan, layThongTinCaNhan };
