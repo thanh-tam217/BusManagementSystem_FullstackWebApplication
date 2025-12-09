@@ -56,24 +56,23 @@
     </nav>
 
     <div class="main-panel">
-        
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
-            <div class="ms-auto d-flex align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
+            </div>
+            <div class="d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
-                    <p class="mb-0 fw-bold text-dark" id="user-name">Trưởng bến</p>
+                    <p class="mb-0 fw-bold text-dark" id="station-admin-name">Trưởng bến</p>
                     <small class="text-muted">Trưởng bến</small>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="40">
+                <img src="https://ui-avatars.com/api/?name=User&background=random&size=128" class="rounded-circle img-fluid border border-3 border-light shadow" id="profile-avatar-header" style="width: 40px;">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-warning text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-users-gear"></i>
-                    </span> Nhân Sự Bến Xe
+                <h3 class="page-title fw-bold" style="color: #0081a7;">
+                    <i class="fa-solid fa-user-tie"></i> Quản lý nhân viên
                 </h3>
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-user-plus me-1"></i> Thêm Nhân Viên
@@ -95,11 +94,17 @@
                             <label class="small text-muted fw-bold">Tìm kiếm</label>
                             <input type="text" class="form-control bg-light border-0" id="searchKeyword" placeholder="Nhập tên hoặc số điện thoại...">
                         </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterStaff()">
+                        <div class="col-md-1">
+                            <button class="btn btn-secondary fw-bold" onclick="resetFilter()">
+                                <i class="fa-solid fa-rotate-right"></i> 
+                            </button>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-inverse-info fw-bold" onclick="filterStaff()">
                                 <i class="fa-solid fa-search me-1"></i> Tìm
                             </button>
                         </div>
+                        
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -169,7 +174,8 @@
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') window.location.href = '/login.html';
-        document.getElementById('user-name').innerText = user.hoTen;
+        document.getElementById('station-admin-name').innerText = user.hoTen;
+        document.getElementById('profile-avatar-header').src = `https://ui-avatars.com/api/?name=${user.hoTen}&background=random&size=128`;
         const token = localStorage.getItem('token');
 
         let allStaff = [];
@@ -281,6 +287,12 @@
                 return matchRole && matchKeyword;
             });
             renderTable(filtered);
+        }
+
+        function resetFilter() {
+            document.getElementById('filterRole').value = '';
+            document.getElementById('searchKeyword').value = '';
+            renderTable(allStaff);
         }
 
         // 4. Modal Add

@@ -2,14 +2,15 @@ const ChuyenXe = require('../models/ChuyenXe');
 const TuyenXe = require('../models/TuyenXe');
 const Xe = require('../models/Xe');
 
-// @desc    Lấy danh sách chuyến xe (Có lọc tìm kiếm cho khách)
-// @route   GET /api/chuyen-xe
+const NguoiDung = require('../models/NguoiDung');
+const jwt = require('jsonwebtoken');
+
 // const layDsChuyen = async (req, res) => {
 //     try {
 //         let query = {};
         
-//         // Filter cho khách hàng tìm kiếm: diemDi, diemDen, ngayDi
-//         if (req.query.diemDi) query.diemDi = req.query.diemDi; // Cần xử lý join bảng phức tạp hơn nếu lọc theo Tỉnh, tạm thời để sau
+//         // Filter cho khách hàng tìm kiếm
+//         if (req.query.diemDi) query.diemDi = req.query.diemDi; 
 //         if (req.query.maBenKhoiHanh) query.benKhoiHanh = req.query.maBenKhoiHanh;
         
 //         // Scope Control: Admin Bến chỉ xem chuyến của bến mình
@@ -17,11 +18,27 @@ const Xe = require('../models/Xe');
 //             query.benKhoiHanh = req.user.maBenQuanLy;
 //         }
 
+//         // --- LOGIC MỚI: TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
+//         // Tìm các chuyến đang "DangDi" hoặc "DangCho" mà thời gian dự kiến đến đã qua
+//         const now = new Date();
+        
+//         // Cập nhật các chuyến đã quá giờ đến -> Thành 'DaKetThuc'
+//         await ChuyenXe.updateMany(
+//             {
+//                 trangThai: { $in: ['DangCho', 'DangDi'] },
+//                 thoiGianDuKienDen: { $lt: now } // Giờ đến nhỏ hơn giờ hiện tại
+//             },
+//             { $set: { trangThai: 'DaKetThuc' } }
+//         );
+//         // ---------------------------------------------------
+
 //         const dsChuyen = await ChuyenXe.find(query)
 //             .populate('maTuyen')
 //             .populate('maXe', 'bienSo loaiXe')
+//             .populate('maTaiXe', 'hoTen soDienThoai') // Populate thêm thông tin tài xế
 //             .populate('benKhoiHanh', 'tenBen')
-//             .populate('benDen', 'tenBen');
+//             .populate('benDen', 'tenBen')
+//             .sort({ thoiGianKhoiHanh: -1 }); // Sắp xếp chuyến mới nhất lên đầu
             
 //         res.json(dsChuyen);
 //     } catch (error) {
@@ -29,47 +46,91 @@ const Xe = require('../models/Xe');
 //     }
 // };
 
-
 const layDsChuyen = async (req, res) => {
     try {
         let query = {};
-        
-        // Filter cho khách hàng tìm kiếm
-        if (req.query.diemDi) query.diemDi = req.query.diemDi; 
-        if (req.query.maBenKhoiHanh) query.benKhoiHanh = req.query.maBenKhoiHanh;
-        
-        // Scope Control: Admin Bến chỉ xem chuyến của bến mình
-        if (req.user && req.user.vaiTro === 'AdminBenXe') {
-            query.benKhoiHanh = req.user.maBenQuanLy;
+        let currentUser = null;
+
+        console.log("--- TÌM KIẾM CHUYẾN ---");
+        console.log("Query Params:", req.query);
+
+        // 1. GIẢI MÃ TOKEN (Nếu có) để xác định Admin Bến
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            try {
+                const token = req.headers.authorization.split(' ')[1];
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUser = await NguoiDung.findById(decoded.id).select('-matKhau');
+            } catch (error) {
+                console.log("Token lỗi hoặc là khách vãng lai.");
+            }
         }
 
-        // --- LOGIC MỚI: TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
-        // Tìm các chuyến đang "DangDi" hoặc "DangCho" mà thời gian dự kiến đến đã qua
+        // 2. XỬ LÝ LỌC THEO TUYẾN (Quan trọng)
+        if (req.query.diemDi || req.query.diemDen) {
+            let tuyenQuery = {};
+            // Chuyển đổi sang ObjectId nếu cần thiết, hoặc để Mongoose tự cast
+            if (req.query.diemDi) tuyenQuery.diemDi = req.query.diemDi;
+            if (req.query.diemDen) tuyenQuery.diemDen = req.query.diemDen;
+
+            console.log("Đang tìm Tuyến với điều kiện:", tuyenQuery);
+            const matchingTuyens = await TuyenXe.find(tuyenQuery).select('_id');
+            const tuyenIds = matchingTuyens.map(t => t._id);
+            
+            console.log(`Tìm thấy ${tuyenIds.length} tuyến phù hợp.`);
+            
+            // Nếu không tìm thấy tuyến nào phù hợp -> Trả về rỗng luôn
+            if (tuyenIds.length === 0) {
+                return res.json([]);
+            }
+
+            query.maTuyen = { $in: tuyenIds };
+        }
+
+        // 3. XỬ LÝ LỌC THEO NGÀY (Fix lỗi lệch múi giờ)
+        if (req.query.ngayDi) {
+            const dateStr = req.query.ngayDi; // YYYY-MM-DD
+            // Tạo khoảng thời gian từ 00:00:00 đến 23:59:59 của ngày đó (theo giờ Server/UTC)
+            const startOfDay = new Date(dateStr);
+            const endOfDay = new Date(dateStr);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            query.thoiGianKhoiHanh = {
+                $gte: startOfDay,
+                $lte: endOfDay
+            };
+        }
+
+        // 4. PHÂN QUYỀN (Nếu là Admin Bến -> Chỉ thấy chuyến bến mình)
+        if (currentUser && currentUser.vaiTro === 'AdminBenXe') {
+            console.log(`Admin Bến [${currentUser.hoTen}] đang xem. Lọc bến: ${currentUser.maBenQuanLy}`);
+            query.benKhoiHanh = currentUser.maBenQuanLy;
+        }
+
+        // 5. TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI (Các chuyến quá hạn)
         const now = new Date();
-        
-        // Cập nhật các chuyến đã quá giờ đến -> Thành 'DaKetThuc'
         await ChuyenXe.updateMany(
-            {
-                trangThai: { $in: ['DangCho', 'DangDi'] },
-                thoiGianDuKienDen: { $lt: now } // Giờ đến nhỏ hơn giờ hiện tại
-            },
+            { trangThai: { $in: ['DangCho', 'DangDi'] }, thoiGianDuKienDen: { $lt: now } },
             { $set: { trangThai: 'DaKetThuc' } }
         );
-        // ---------------------------------------------------
 
+        // 6. TRẢ KẾT QUẢ
         const dsChuyen = await ChuyenXe.find(query)
-            .populate('maTuyen')
+            .populate({ path: 'maTuyen', populate: { path: 'diemDi diemDen', select: 'tenTinh' } })
             .populate('maXe', 'bienSo loaiXe')
-            .populate('maTaiXe', 'hoTen soDienThoai') // Populate thêm thông tin tài xế
+            .populate('maTaiXe', 'hoTen soDienThoai')
             .populate('benKhoiHanh', 'tenBen')
             .populate('benDen', 'tenBen')
-            .sort({ thoiGianKhoiHanh: -1 }); // Sắp xếp chuyến mới nhất lên đầu
-            
+            .sort({ thoiGianKhoiHanh: 1 }); // Sắp xếp giờ chạy tăng dần
+
+        console.log(`=> Kết quả: ${dsChuyen.length} chuyến.`);
         res.json(dsChuyen);
+
     } catch (error) {
+        console.error("Lỗi API Chuyến Xe:", error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // @desc    Tạo chuyến xe mới
 // @route   POST /api/chuyen-xe

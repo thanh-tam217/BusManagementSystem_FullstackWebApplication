@@ -12,7 +12,7 @@
 
     <nav class="sidebar">
         <div class="brand-logo">
-            <i class="fa-solid fa-bus me-2"></i> STATION
+            <i class="fa-solid fa-bus me-2"></i> THT BUSLINE
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item"><a class="nav-link" href="dashboard-station.html"><i class="fa-solid fa-chart-line"></i><span class="menu-title">Tổng quan bến</span></a></li>
@@ -33,19 +33,22 @@
 
     <div class="main-panel">
         <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <i class="fa-solid fa-bars text-secondary fs-4 d-lg-none"></i>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="fw-bold me-2" id="header-name">Admin</span>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=9a55ff&color=fff" class="rounded-circle" width="40">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end d-none d-sm-block">
+                    <p class="mb-0 fw-bold text-dark" id="user-name">Trưởng bến</p>
+                    <small class="text-muted">Trưởng bến</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=User&background=random&size=128" class="rounded-circle img-fluid border border-3 border-light shadow" id="profile-avatar-header" style="width: 40px;">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
-            <div class="page-header mb-4">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-primary text-white me-2 p-2 rounded">
-                        <i class="fa-solid fa-user-shield"></i>
-                    </span> Hồ Sơ Quản Trị Viên
+            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+                <h3 class="page-title fw-bold" style="color: #0081a7;">
+                    <i class="fa-solid fa-user-gear"></i> Thông tin cá nhân
                 </h3>
             </div>
 
@@ -130,15 +133,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/main.js"></script>
     <script>
-        // Copy y nguyên phần Script từ file profile.html của nhân viên sang đây
-        // Chỉ cần thay đổi logic check quyền ở dòng đầu tiên
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') window.location.href = '/login.html';
+        document.getElementById('user-name').innerText = user.hoTen;
+        document.getElementById('profile-avatar-header').src = `https://ui-avatars.com/api/?name=${user.hoTen}&background=random&size=128`;
+
+        const token = localStorage.getItem('token');
+
         
-        // ... (Dán toàn bộ phần JS còn lại vào đây) ...
-        
-        // --- COPY ĐOẠN JS TỪ FILE profile.html VÀO ĐÂY (Từ dòng document.getElementById('header-name')... trở xuống) ---
-        document.getElementById('header-name').innerText = user.hoTen;
         let originalData = {}; 
 
         async function loadProfile() {

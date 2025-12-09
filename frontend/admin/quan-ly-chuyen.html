@@ -1,4 +1,3 @@
-<!-- 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -14,437 +13,6 @@
     <nav class="sidebar">
         <div class="brand-logo">
             <i class="fa-solid fa-bus me-2"></i> THT BUSLINE
-        </div>
-        <ul class="nav flex-column mt-3">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard-station.html">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span class="menu-title">Tổng quan bến</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="quan-ly-xe.html">
-                    <i class="fa-solid fa-bus-simple"></i>
-                    <span class="menu-title">Quản lý xe</span>
-                </a>
-            </li>
-            
-            <li class="nav-item">
-                <a class="nav-link active" href="quan-ly-chuyen.html">
-                    <i class="fa-regular fa-calendar-check"></i>
-                    <span class="menu-title">Lịch trình chuyến</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="quan-ly-nhan-vien.html">
-                    <i class="fa-solid fa-user-tie"></i>
-                    <span class="menu-title">Nhân viên</span>
-                </a>
-            </li>
-            <li class="nav-item mt-5">
-                <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span class="menu-title">Đăng xuất</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <div class="main-panel">
-        
-        <nav class="navbar navbar-expand-lg sticky-top d-flex justify-content-between">
-            <div class="d-flex align-items-center">
-                <i class="fa-solid fa-bars text-secondary fs-4 me-3 d-lg-none"></i>
-                <div class="input-group">
-                    <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Tìm kiếm chuyến xe...">
-                </div>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="me-3 text-end d-none d-sm-block">
-                    <p class="mb-0 fw-bold text-dark" id="user-name">Trưởng bến</p>
-                    <small class="text-muted">Trưởng bến</small>
-                </div>
-                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="40">
-            </div>
-        </nav>
-
-        <div class="content-wrapper p-4">
-            
-            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-success text-white me-2 p-2 rounded">
-                        <i class="fa-regular fa-calendar-check"></i>
-                    </span> Lịch Trình Chuyến Xe
-                </h3>
-                <button class="btn btn-gradient-primary" onclick="openAddModal()">
-                    <i class="fa-solid fa-plus me-1"></i> Lên Lịch Mới
-                </button>
-            </div>
-
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    
-                    <div class="row g-2 mb-4 align-items-end">
-                        <div class="col-md-5">
-                            <label class="small text-muted fw-bold">Tỉnh Đi</label>
-                            <select class="form-select bg-light border-0" id="filterTinhDi">
-                                <option value="">-- Tất cả --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="small text-muted fw-bold">Tỉnh Đến</label>
-                            <select class="form-select bg-light border-0" id="filterTinhDen">
-                                <option value="">-- Tất cả --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterChuyen()">
-                                <i class="fa-solid fa-search me-1"></i> Tìm kiếm
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Hành trình (Bến xe)</th>
-                                    <th>Xe chạy</th>
-                                    <th>Giờ đi</th>
-                                    <th>Giá vé</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-chuyen">
-                                <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="chuyenModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="modalTitle">Lên Lịch Chuyến Xe Mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="chuyenForm">
-                        <input type="hidden" id="chuyenId"> <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Chọn Tuyến</label>
-                                <select class="form-select" id="maTuyen" onchange="filterBenDenByTuyen()" required>
-                                    <option value="">-- Chọn tuyến --</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Chọn Xe</label>
-                                <select class="form-select" id="maXe" required><option value="">-- Chọn xe --</option></select>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label text-danger">Bến Đến (Tự động lọc theo Tuyến)</label>
-                            <select class="form-select" id="benDen" required>
-                                <option value="">-- Vui lòng chọn tuyến trước --</option>
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Thời gian khởi hành</label>
-                                <input type="datetime-local" class="form-control" id="thoiGianKhoiHanh" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Giá vé (VND)</label>
-                                <input type="number" class="form-control" id="giaVe" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Trạng thái</label>
-                            <select class="form-select" id="trangThai">
-                                <option value="DangCho">Đang chờ (Sắp chạy)</option>
-                                <option value="DangDi">Đang đi</option>
-                                <option value="DaKetThuc">Đã kết thúc</option>
-                                <option value="Huy">Đã hủy</option>
-                            </select>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-gradient-primary" id="btnSave">Lưu lại</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/main.js"></script>
-    <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') window.location.href = '/login.html';
-        document.getElementById('user-name').innerText = user.hoTen;
-        const token = localStorage.getItem('token');
-
-        // Biến toàn cục
-        let allChuyen = [];
-        let allTuyen = []; 
-        let allBen = [];   
-
-        function formatDateTimeForInput(isoString) {
-            const date = new Date(isoString);
-            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-            return date.toISOString().slice(0, 16);
-        }
-
-        // 1. Load Dữ liệu nền
-        // 1. Load Dữ liệu nền (Đã nâng cấp lọc Tuyến theo Bến của Admin)
-        async function loadDropdowns() {
-            try {
-                // Bước 1: Load danh sách Bến trước (để lấy thông tin Tỉnh của Admin)
-                const resBen = await fetch(`${API_URL}/ben-xe`);
-                allBen = await resBen.json();
-
-                // Xác định ID Tỉnh của Admin hiện tại (Nếu là Admin Bến)
-                let idTinhCuaAdmin = null;
-                if (user.vaiTro === 'AdminBenXe' && user.maBenQuanLy) {
-                    // Tìm object bến trong danh sách để lấy thông tin Tỉnh
-                    // Lưu ý: user.maBenQuanLy chỉ là string ID, cần tìm trong allBen để lấy object maTinh
-                    const myStation = allBen.find(b => b._id === user.maBenQuanLy);
-                    if (myStation && myStation.maTinh) {
-                        idTinhCuaAdmin = myStation.maTinh._id;
-                    }
-                }
-
-                // Bước 2: Load Tuyến và Lọc
-                const resTuyen = await fetch(`${API_URL}/tuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }});
-                allTuyen = await resTuyen.json();
-                
-                const selectTuyen = document.getElementById('maTuyen');
-                selectTuyen.innerHTML = '<option value="">-- Chọn tuyến --</option>'; // Reset
-
-                allTuyen.forEach(t => {
-                    // --- LOGIC LỌC MỚI ---
-                    // Nếu là Admin Bến: Chỉ hiện tuyến có Điểm Đi trùng với Tỉnh của Bến
-                    if (idTinhCuaAdmin) {
-                        // Nếu điểm đi của tuyến KHÁC tỉnh của admin -> Bỏ qua
-                        if (t.diemDi && t.diemDi._id !== idTinhCuaAdmin) {
-                            return; 
-                        }
-                    }
-                    // ---------------------
-
-                    const tenTinhDi = t.diemDi ? t.diemDi.tenTinh : 'Unknown';
-                    const tenTinhDen = t.diemDen ? t.diemDen.tenTinh : 'Unknown';
-                    selectTuyen.innerHTML += `<option value="${t._id}">${tenTinhDi} -> ${tenTinhDen}</option>`;
-                });
-
-                // Bước 3: Load Xe (Giữ nguyên)
-                const resXe = await fetch(`${API_URL}/xe`, { headers: { 'Authorization': `Bearer ${token}` }});
-                const dataXe = await resXe.json();
-                const selectXe = document.getElementById('maXe');
-                selectXe.innerHTML = '<option value="">-- Chọn xe --</option>';
-                dataXe.forEach(x => selectXe.innerHTML += `<option value="${x._id}">${x.bienSo} (${x.loaiXe})</option>`);
-
-                // Bước 4: Load Tỉnh vào bộ lọc (Giữ nguyên)
-                const resTinh = await fetch(`${API_URL}/tinh-thanh`);
-                const dataTinh = await resTinh.json();
-                const optTinh = dataTinh.map(t => `<option value="${t._id}">${t.tenTinh}</option>`).join('');
-                document.getElementById('filterTinhDi').innerHTML += optTinh;
-                document.getElementById('filterTinhDen').innerHTML += optTinh;
-
-            } catch (e) { console.error(e); }
-        }
-
-        function filterBenDenByTuyen() {
-            const tuyenId = document.getElementById('maTuyen').value;
-            const selectBenDen = document.getElementById('benDen');
-            selectBenDen.innerHTML = '<option value="">-- Chọn bến đích --</option>';
-
-            if (!tuyenId) return;
-
-            const selectedTuyen = allTuyen.find(t => t._id === tuyenId);
-            if (!selectedTuyen || !selectedTuyen.diemDen) return;
-
-            const idTinhDen = selectedTuyen.diemDen._id; 
-            const validBens = allBen.filter(b => b.maTinh && b.maTinh._id === idTinhDen);
-
-            validBens.forEach(b => {
-                selectBenDen.innerHTML += `<option value="${b._id}">${b.tenBen}</option>`;
-            });
-        }
-
-        // 2. Load Chuyến
-        async function loadChuyen() {
-            const res = await fetch(`${API_URL}/chuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }});
-            allChuyen = await res.json();
-            renderTable(allChuyen);
-        }
-
-        // 3. Render Table
-        function renderTable(data) {
-            const tbody = document.getElementById('table-chuyen');
-            tbody.innerHTML = '';
-            
-            if(data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy dữ liệu</td></tr>';
-                return;
-            }
-
-            data.forEach(c => {
-                const time = new Date(c.thoiGianKhoiHanh).toLocaleString('vi-VN');
-                const gia = new Intl.NumberFormat('vi-VN').format(c.giaVe);
-                
-                const tenBenDi = c.benKhoiHanh ? c.benKhoiHanh.tenBen : 'Bến đi (?)';
-                const tenBenDen = c.benDen ? c.benDen.tenBen : 'Bến đến (?)';
-                
-                let tenTuyenText = '<span class="text-danger small">Lỗi tuyến</span>';
-                if (c.maTuyen) {
-                    const fullTuyen = allTuyen.find(t => t._id === c.maTuyen._id);
-                    if (fullTuyen && fullTuyen.diemDi && fullTuyen.diemDen) {
-                        tenTuyenText = `${fullTuyen.diemDi.tenTinh} <i class="fa-solid fa-arrow-right mx-1 small"></i> ${fullTuyen.diemDen.tenTinh}`;
-                    }
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="fw-bold text-primary">${tenBenDi} <i class="fa-solid fa-arrow-right small text-dark"></i> ${tenBenDen}</div>
-                            <small class="text-muted">${tenTuyenText}</small>
-                        </td>
-                        <td>${c.maXe ? c.maXe.bienSo : 'Xe đã xóa'}</td>
-                        <td>${time}</td>
-                        <td class="text-success fw-bold">${gia} đ</td>
-                        <td><span class="badge-gradient-base badge-gradient-green">${c.trangThai}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-inverse-info btn-icon me-1" onclick="openEditModal('${c._id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-sm btn-inverse-danger btn-icon" onclick="deleteChuyen('${c._id}')"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        // 4. Lọc Chuyến
-        function filterChuyen() {
-            const tinhDi = document.getElementById('filterTinhDi').value;
-            const tinhDen = document.getElementById('filterTinhDen').value;
-
-            const filtered = allChuyen.filter(c => {
-                if (!c.maTuyen) return false;
-                const idTinhDiDB = String(c.maTuyen.diemDi); 
-                const idTinhDenDB = String(c.maTuyen.diemDen);
-                const matchTinhDi = (tinhDi === "") || (idTinhDiDB === tinhDi);
-                const matchTinhDen = (tinhDen === "") || (idTinhDenDB === tinhDen);
-                return matchTinhDi && matchTinhDen;
-            });
-            renderTable(filtered);
-        }
-
-        // Modal
-        function openAddModal() {
-            document.getElementById('chuyenForm').reset();
-            document.getElementById('chuyenId').value = '';
-            document.getElementById('modalTitle').innerText = 'Lên Lịch Chuyến Mới';
-            document.getElementById('btnSave').innerText = 'Lưu lại';
-            document.getElementById('benDen').innerHTML = '<option value="">-- Vui lòng chọn tuyến trước --</option>';
-            new bootstrap.Modal(document.getElementById('chuyenModal')).show();
-        }
-
-        function openEditModal(id) {
-            const c = allChuyen.find(x => x._id === id);
-            if(!c) return;
-
-            document.getElementById('chuyenId').value = c._id;
-            document.getElementById('maTuyen').value = c.maTuyen ? c.maTuyen._id : '';
-            filterBenDenByTuyen();
-            
-            document.getElementById('maXe').value = c.maXe ? c.maXe._id : '';
-            document.getElementById('benDen').value = c.benDen ? c.benDen._id : '';
-            document.getElementById('giaVe').value = c.giaVe;
-            document.getElementById('trangThai').value = c.trangThai;
-            document.getElementById('thoiGianKhoiHanh').value = formatDateTimeForInput(c.thoiGianKhoiHanh);
-
-            document.getElementById('modalTitle').innerText = 'Cập Nhật Chuyến';
-            document.getElementById('btnSave').innerText = 'Cập nhật';
-            new bootstrap.Modal(document.getElementById('chuyenModal')).show();
-        }
-
-        document.getElementById('chuyenForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('chuyenId').value;
-            const data = {
-                maTuyen: document.getElementById('maTuyen').value,
-                maXe: document.getElementById('maXe').value,
-                benDen: document.getElementById('benDen').value,
-                thoiGianKhoiHanh: document.getElementById('thoiGianKhoiHanh').value,
-                giaVe: document.getElementById('giaVe').value,
-                trangThai: document.getElementById('trangThai').value
-            };
-
-            let url = `${API_URL}/chuyen-xe`;
-            let method = 'POST';
-            if(id) { url += `/${id}`; method = 'PUT'; }
-
-            try {
-                const res = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify(data)
-                });
-                if(res.ok) {
-                    alert('Lưu thành công');
-                    bootstrap.Modal.getInstance(document.getElementById('chuyenModal')).hide();
-                    loadChuyen();
-                } else {
-                    const err = await res.json();
-                    alert(err.message);
-                }
-            } catch(e) { console.error(e); }
-        });
-
-        async function deleteChuyen(id) {
-            if(!confirm('Xóa chuyến này?')) return;
-            const res = await fetch(`${API_URL}/chuyen-xe/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if(res.ok) loadChuyen();
-            else alert('Lỗi khi xóa');
-        }
-
-        loadDropdowns().then(() => {
-            loadChuyen();
-        });
-    </script>
-</body>
-</html>
- -->
-
-
- <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch Trình Chuyến</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-
-    <nav class="sidebar">
-        <div class="brand-logo">
-            <i class="fa-solid fa-bus me-2"></i> STATION
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
@@ -493,19 +61,17 @@
             </div>
             <div class="d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
-                    <p class="mb-0 fw-bold text-dark" id="user-name">Trưởng bến</p>
+                    <p class="mb-0 fw-bold text-dark" id="station-admin-name">Trưởng bến</p>
                     <small class="text-muted">Trưởng bến</small>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Station+Admin&background=047edf&color=fff" class="rounded-circle" width="40">
+                <img src="https://ui-avatars.com/api/?name=User&background=random&size=128" class="rounded-circle img-fluid border border-3 border-light shadow" id="profile-avatar-header" style="width: 40px;">
             </div>
         </nav>
 
         <div class="content-wrapper p-4">
             <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <h3 class="page-title fw-bold">
-                    <span class="page-title-icon bg-gradient-success text-white me-2 p-2 rounded">
-                        <i class="fa-regular fa-calendar-check"></i>
-                    </span> Lịch Trình Chuyến Xe
+                <h3 class="page-title fw-bold" style="color: #0081a7;">
+                    <i class="fa-regular fa-calendar-check"></i> Quản lý chuyến xe
                 </h3>
                 <button class="btn btn-gradient-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus me-1"></i> Lên Lịch Mới
@@ -527,7 +93,14 @@
                                 <option value="">-- Tất cả --</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <!-- Button reset -->
+                        <div class="col-md-1">
+                            <button class="btn btn-secondary w-50 fw-bold" onclick="resetFilter()">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-1">
                             <button class="btn btn-inverse-info w-100 fw-bold" onclick="filterChuyen()">
                                 <i class="fa-solid fa-search me-1"></i> Tìm kiếm
                             </button>
@@ -631,7 +204,8 @@
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
         if (!isLoggedIn() || user.vaiTro !== 'AdminBenXe') window.location.href = '/login.html';
-        document.getElementById('user-name').innerText = user.hoTen;
+        document.getElementById('station-admin-name').innerText = user.hoTen;
+        document.getElementById('profile-avatar-header').src = `https://ui-avatars.com/api/?name=${user.hoTen}&background=random&size=128`;
         const token = localStorage.getItem('token');
 
         let allChuyen = [];
@@ -664,6 +238,7 @@
             } catch (e) { console.error(e); }
         }
 
+        
         // 2. Load Dropdowns (Tuyến, Xe, Tỉnh, TÀI XẾ)
         async function loadDropdowns() {
             try {
@@ -971,8 +546,44 @@
             else alert('Lỗi khi xóa');
         }
 
-        function filterChuyen() { /* Logic lọc cũ giữ nguyên */ }
+        function filterChuyen() { 
+            const tinhDi = document.getElementById('filterTinhDi').value;
+            const tinhDen = document.getElementById('filterTinhDen').value;
 
+            const filtered = allChuyen.filter(c => {
+                let matchDi = true;
+                let matchDen = true;
+
+                if(tinhDi) {
+                    const idTuyen = c.maTuyen._id || c.maTuyen;
+                    const fullTuyen = allTuyen.find(t => t._id === idTuyen);
+                    if(fullTuyen && fullTuyen.diemDi) {
+                        matchDi = fullTuyen.diemDi._id === tinhDi;
+                    } else {
+                        matchDi = false;
+                    }
+                }
+
+                if(tinhDen) {
+                    const idTuyen = c.maTuyen._id || c.maTuyen;
+                    const fullTuyen = allTuyen.find(t => t._id === idTuyen);
+                    if(fullTuyen && fullTuyen.diemDen) {
+                        matchDen = fullTuyen.diemDen._id === tinhDen;
+                    } else {
+                        matchDen = false;
+                    }
+                }
+
+                return matchDi && matchDen;
+            });
+
+            renderTable(filtered);      
+        }
+        function resetFilter() {
+            document.getElementById('filterTinhDi').value = '';
+            document.getElementById('filterTinhDen').value = '';
+            renderTable(allChuyen);
+        }
         // Logic khởi chạy: Load Dropdown (để lấy danh sách tài xế, xe, tuyến) -> Sau đó Load Chuyến (để biết ai bận)
         loadDropdowns().then(() => {
             loadChuyen();

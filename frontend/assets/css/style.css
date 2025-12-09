@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-    --primary-gradient: linear-gradient(to right, #da8cff, #9a55ff);
+    --primary-gradient: linear-gradient(to right, #0081a7, #00afb9);
     --secondary-gradient: linear-gradient(to right, #90caf9, #047edf 99%);
     --bg-color: #f2edf3;
     --sidebar-width: 260px;
@@ -11,7 +11,7 @@
 
 body {
     font-family: 'Ubuntu', sans-serif;
-    background-color: var(--bg-color);
+    /* background-color: var(--bg-color); */
     color: #343a40;
 }
 
@@ -36,7 +36,7 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 24px;
-    color: #9a55ff;
+    color: #0081a7;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -59,16 +59,16 @@ body {
 .sidebar .nav-link i {
     margin-right: 15px;
     font-size: 18px;
-    color: #bba8bff5;
+    color: #00afb9;
 }
 
 /* Hiệu ứng khi hover hoặc active */
 .sidebar .nav-link:hover, .sidebar .nav-link.active {
-    color: #9a55ff;
-    background: #fcfcfc;
+    color: #0081a7;
+    background: #e5effc;
 }
 .sidebar .nav-link.active i {
-    color: #9a55ff;
+    color: #0081a7;
 }
 
 /* 3. Main Content Wrapper */
