@@ -240,22 +240,166 @@
 
         
         // 2. Load Dropdowns (Tuyến, Xe, Tỉnh, TÀI XẾ)
+        // async function loadDropdowns() {
+        //     try {
+        //         const resBen = await fetch(`${API_URL}/ben-xe`);
+        //         allBen = await resBen.json();
+
+        //         let idTinhCuaAdmin = null;
+        //         if (user.vaiTro === 'AdminBenXe' && user.maBenQuanLy) {
+        //             const myStation = allBen.find(b => b._id === user.maBenQuanLy);
+        //             if (myStation && myStation.maTinh) {
+        //                 idTinhCuaAdmin = myStation.maTinh._id;
+        //             }
+        //         }
+
+        //         // Load Tuyến
+        //         const resTuyen = await fetch(`${API_URL}/tuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         allTuyen = await resTuyen.json();
+        //         const selectTuyen = document.getElementById('maTuyen');
+        //         selectTuyen.innerHTML = '<option value="">-- Chọn tuyến --</option>';
+        //         allTuyen.forEach(t => {
+        //             if (idTinhCuaAdmin && t.diemDi && t.diemDi._id !== idTinhCuaAdmin) return;
+        //             const tenTinhDi = t.diemDi ? t.diemDi.tenTinh : 'Unknown';
+        //             const tenTinhDen = t.diemDen ? t.diemDen.tenTinh : 'Unknown';
+        //             selectTuyen.innerHTML += `<option value="${t._id}">${tenTinhDi} -> ${tenTinhDen}</option>`;
+        //         });
+
+        //         // Load Xe
+        //         const resXe = await fetch(`${API_URL}/xe`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         const dataXe = await resXe.json();
+
+                
+
+        //         const selectXe = document.getElementById('maXe');
+        //         selectXe.innerHTML = '<option value="">-- Chọn xe --</option>';
+        //         dataXe.forEach(x => selectXe.innerHTML += `<option value="${x._id}">${x.bienSo} (${x.loaiXe})</option>`);
+
+        //         // Load Tỉnh vào Filter
+        //         const resTinh = await fetch(`${API_URL}/tinh-thanh`);
+        //         const dataTinh = await resTinh.json();
+        //         const optTinh = dataTinh.map(t => `<option value="${t._id}">${t.tenTinh}</option>`).join('');
+        //         document.getElementById('filterTinhDi').innerHTML += optTinh;
+        //         document.getElementById('filterTinhDen').innerHTML += optTinh;
+
+        //         // [MỚI] Load Tài Xế
+        //         const resUsers = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         const dataUsers = await resUsers.json();
+        //         // Lọc lấy những người là 'TaiXe'
+        //         allTaiXe = dataUsers.filter(u => u.vaiTro === 'TaiXe');
+                
+        //     } catch (e) { console.error(e); }
+        // }
+
+        
+
+        // 2. Load Dropdowns (Tuyến, Xe, Tỉnh, TÀI XẾ)
+        // async function loadDropdowns() {
+        //     try {
+        //         const resBen = await fetch(`${API_URL}/ben-xe`);
+        //         allBen = await resBen.json();
+
+        //         let idTinhCuaAdmin = null;
+        //         const myStationId = user.maBenQuanLy; 
+                
+        //         if (user.vaiTro === 'AdminBenXe' && myStationId) {
+        //             const myStation = allBen.find(b => b._id === myStationId);
+        //             if (myStation && myStation.maTinh) {
+        //                 idTinhCuaAdmin = myStation.maTinh._id;
+        //             }
+        //         }
+                
+        //         // Load Tuyến (Giữ nguyên)
+        //         const resTuyen = await fetch(`${API_URL}/tuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         allTuyen = await resTuyen.json();
+        //         const selectTuyen = document.getElementById('maTuyen');
+        //         selectTuyen.innerHTML = '<option value="">-- Chọn tuyến --</option>';
+        //         allTuyen.forEach(t => {
+        //             if (idTinhCuaAdmin && t.diemDi && t.diemDi._id !== idTinhCuaAdmin) return;
+        //             const tenTinhDi = t.diemDi ? t.diemDi.tenTinh : 'Unknown';
+        //             const tenTinhDen = t.diemDen ? t.diemDen.tenTinh : 'Unknown';
+        //             selectTuyen.innerHTML += `<option value="${t._id}">${tenTinhDi} -> ${tenTinhDen}</option>`;
+        //         });
+
+                
+        //         // Load Xe
+        //         const resXe = await fetch(`${API_URL}/xe`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         const dataXeGoc = await resXe.json();
+                
+        //         const availableCars = dataXeGoc.filter(x => {
+                    
+        //             // --- CHỈ LỌC DỰA TRÊN TRẠNG THÁI VÀ BẾN QUẢN LÝ ---
+                    
+        //             // 1. Kiểm tra trạng thái XE: Phải là 'DangCho' (Sẵn sàng/Rảnh)
+        //             if (x.trangThai !== 'DangCho') {
+        //                 return false; 
+        //             } 
+                    
+        //             // 2. Scope Control: Chỉ hiện xe thuộc bến của Admin này
+        //             if (user.vaiTro === 'AdminBenXe') {
+        //                 // Kiểm tra x.maBen có phải là object đã populate (từ API /xe) hay không
+        //                 const maBenXe = x.maBen._id ? x.maBen._id.toString() : x.maBen.toString();
+                        
+        //                 if (maBenXe !== myStationId.toString()) {
+        //                     // console.log(`Bỏ qua xe ${x.bienSo}: Không thuộc bến của Admin.`);
+        //                     return false;
+        //                 }
+        //             }
+        //             return true;
+        //         });
+                
+        //         // 3. Đổ dữ liệu vào dropdown Xe
+        //         const selectXe = document.getElementById('maXe');
+        //         selectXe.innerHTML = '<option value="">-- Chọn xe --</option>';
+        //         availableCars.forEach(x => selectXe.innerHTML += `<option value="${x._id}">${x.bienSo} (${x.loaiXe})</option>`);
+
+
+        //         // Load Tỉnh vào Filter (Giữ nguyên)
+        //         const resTinh = await fetch(`${API_URL}/tinh-thanh`);
+        //         const dataTinh = await resTinh.json();
+        //         const optTinh = dataTinh.map(t => `<option value="${t._id}">${t.tenTinh}</option>`).join('');
+        //         document.getElementById('filterTinhDi').innerHTML += optTinh;
+        //         document.getElementById('filterTinhDen').innerHTML += optTinh;
+
+        //         // [MỚI] Load Tài Xế (Giữ nguyên)
+        //         const resUsers = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` }});
+        //         const dataUsers = await resUsers.json();
+        //         allTaiXe = dataUsers.filter(u => u.vaiTro === 'TaiXe');
+                
+        //     } catch (e) { console.error(e); }
+        // }
+
+        // 2. Load Dropdowns (Tuyến, Xe, Tỉnh, TÀI XẾ) - PHIÊN BẢN FIX LỖI
         async function loadDropdowns() {
             try {
-                const resBen = await fetch(`${API_URL}/ben-xe`);
-                allBen = await resBen.json();
+                const token = localStorage.getItem('token');
+                
+                // Load tất cả dữ liệu mới nhất từ Server
+                const [resBen, resTuyen, resXe, resChuyen, resTinh, resUsers] = await Promise.all([
+                    fetch(`${API_URL}/ben-xe`),
+                    fetch(`${API_URL}/tuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }}),
+                    fetch(`${API_URL}/xe`, { headers: { 'Authorization': `Bearer ${token}` }}),
+                    fetch(`${API_URL}/chuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }}), 
+                    fetch(`${API_URL}/tinh-thanh`),
+                    fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` }})
+                ]);
 
+                allBen = await resBen.json();
+                allTuyen = await resTuyen.json();
+                const dataXeGoc = await resXe.json();
+                const dataChuyen = await resChuyen.json();
+                const dataTinh = await resTinh.json();
+                const dataUsers = await resUsers.json();
+
+                // --- 1. XỬ LÝ TUYẾN ---
                 let idTinhCuaAdmin = null;
-                if (user.vaiTro === 'AdminBenXe' && user.maBenQuanLy) {
-                    const myStation = allBen.find(b => b._id === user.maBenQuanLy);
-                    if (myStation && myStation.maTinh) {
-                        idTinhCuaAdmin = myStation.maTinh._id;
-                    }
+                const myStationId = user.maBenQuanLy; 
+                
+                if (user.vaiTro === 'AdminBenXe' && myStationId) {
+                    const myStation = allBen.find(b => b._id === myStationId);
+                    if (myStation && myStation.maTinh) idTinhCuaAdmin = myStation.maTinh._id;
                 }
 
-                // Load Tuyến
-                const resTuyen = await fetch(`${API_URL}/tuyen-xe`, { headers: { 'Authorization': `Bearer ${token}` }});
-                allTuyen = await resTuyen.json();
                 const selectTuyen = document.getElementById('maTuyen');
                 selectTuyen.innerHTML = '<option value="">-- Chọn tuyến --</option>';
                 allTuyen.forEach(t => {
@@ -265,28 +409,62 @@
                     selectTuyen.innerHTML += `<option value="${t._id}">${tenTinhDi} -> ${tenTinhDen}</option>`;
                 });
 
-                // Load Xe
-                const resXe = await fetch(`${API_URL}/xe`, { headers: { 'Authorization': `Bearer ${token}` }});
-                const dataXe = await resXe.json();
+                // --- 2. XỬ LÝ XE (QUAN TRỌNG NHẤT) ---
+                
+                // A. Lấy danh sách ID các xe đang bận
+                const busyCarIds = dataChuyen
+                    .filter(c => c.trangThai === 'DangCho' || c.trangThai === 'DangDi')
+                    .map(c => {
+                        // Lấy ID xe và ép về chuỗi string
+                        if (c.maXe && c.maXe._id) return c.maXe._id.toString();
+                        if (c.maXe) return c.maXe.toString();
+                        return null;
+                    })
+                    .filter(id => id !== null); // Loại bỏ null
+
+                console.log("Danh sách xe đang bận:", busyCarIds);
+
+                // B. Lọc xe hiển thị
+                const availableCars = dataXeGoc.filter(x => {
+                    // 1. Xe phải Sẵn sàng (DangCho)
+                    if (x.trangThai !== 'DangCho') return false;
+
+                    // 2. Xe không được nằm trong danh sách bận (So sánh String)
+                    if (busyCarIds.includes(x._id.toString())) return false;
+
+                    // 3. Scope Control
+                    if (user.vaiTro === 'AdminBenXe') {
+                        const xeMaBen = x.maBen._id || x.maBen;
+                        if (xeMaBen.toString() !== myStationId.toString()) return false;
+                    }
+                    return true;
+                });
+
                 const selectXe = document.getElementById('maXe');
+                const currentSelectedXe = selectXe.value; // Lưu lại xe đang chọn (nếu có)
+                
                 selectXe.innerHTML = '<option value="">-- Chọn xe --</option>';
-                dataXe.forEach(x => selectXe.innerHTML += `<option value="${x._id}">${x.bienSo} (${x.loaiXe})</option>`);
+                availableCars.forEach(x => selectXe.innerHTML += `<option value="${x._id}">${x.bienSo} (${x.loaiXe})</option>`);
+                
+                // Nếu đang sửa modal mà xe đó vẫn hợp lệ thì set lại giá trị cũ
+                if(currentSelectedXe) selectXe.value = currentSelectedXe;
 
-                // Load Tỉnh vào Filter
-                const resTinh = await fetch(`${API_URL}/tinh-thanh`);
-                const dataTinh = await resTinh.json();
+
+                // --- 3. CÁC PHẦN KHÁC ---
                 const optTinh = dataTinh.map(t => `<option value="${t._id}">${t.tenTinh}</option>`).join('');
-                document.getElementById('filterTinhDi').innerHTML += optTinh;
-                document.getElementById('filterTinhDen').innerHTML += optTinh;
+                const elTinhDi = document.getElementById('filterTinhDi');
+                const elTinhDen = document.getElementById('filterTinhDen');
+                // Chỉ append nếu chưa có (tránh duplicate khi gọi hàm nhiều lần)
+                if(elTinhDi.children.length <= 1) elTinhDi.innerHTML += optTinh;
+                if(elTinhDen.children.length <= 1) elTinhDen.innerHTML += optTinh;
 
-                // [MỚI] Load Tài Xế
-                const resUsers = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` }});
-                const dataUsers = await resUsers.json();
-                // Lọc lấy những người là 'TaiXe'
                 allTaiXe = dataUsers.filter(u => u.vaiTro === 'TaiXe');
                 
             } catch (e) { console.error(e); }
         }
+
+
+
 
         // [MỚI] Hàm cập nhật Dropdown Tài xế (Chỉ hiện người rảnh)
         function updateTaiXeDropdown(currentTaiXeId = null) {
@@ -464,38 +642,90 @@
             document.getElementById('benDen').innerHTML = '<option value="">-- Vui lòng chọn tuyến trước --</option>';
             
             updateTaiXeDropdown(); // Load danh sách tài xế rảnh
+            loadDropdowns().then(() => {
+                updateTaiXeDropdown(); 
+            });
             setMinDate(); // [MỚI] Chặn ngày quá khứ
 
             new bootstrap.Modal(document.getElementById('chuyenModal')).show();
         }
 
+        // function openEditModal(id) {
+        //     const c = allChuyen.find(x => x._id === id);
+        //     if(!c) return;
+            
+
+        //     document.getElementById('chuyenId').value = c._id;
+            
+        //     // Xử lý tuyến & bến
+        //     const idTuyen = c.maTuyen._id || c.maTuyen;
+        //     document.getElementById('maTuyen').value = idTuyen;
+        //     filterBenDenByTuyen();
+            
+        //     document.getElementById('maXe').value = c.maXe ? (c.maXe._id || c.maXe) : '';
+        //     document.getElementById('benDen').value = c.benDen ? (c.benDen._id || c.benDen) : '';
+        //     document.getElementById('giaVe').value = c.giaVe;
+        //     document.getElementById('trangThai').value = c.trangThai;
+        //     document.getElementById('thoiGianKhoiHanh').value = formatDateTimeForInput(c.thoiGianKhoiHanh);
+            
+        //     // Load tài xế (truyền ID hiện tại vào để không bị ẩn chính tài xế đó)
+        //     const idTaiXe = c.maTaiXe ? (c.maTaiXe._id || c.maTaiXe) : null;
+        //     updateTaiXeDropdown(idTaiXe);
+        //     document.getElementById('maTaiXe').value = idTaiXe;
+
+        //     setMinDate(); // Vẫn chặn ngày quá khứ khi sửa (tùy nhu cầu, có thể bỏ nếu muốn sửa chuyến cũ)
+
+        //     document.getElementById('modalTitle').innerText = 'Cập Nhật Chuyến';
+        //     document.getElementById('btnSave').innerText = 'Cập nhật';
+        //     new bootstrap.Modal(document.getElementById('chuyenModal')).show();
+        // }
+
         function openEditModal(id) {
             const c = allChuyen.find(x => x._id === id);
             if(!c) return;
 
-            document.getElementById('chuyenId').value = c._id;
-            
-            // Xử lý tuyến & bến
-            const idTuyen = c.maTuyen._id || c.maTuyen;
-            document.getElementById('maTuyen').value = idTuyen;
-            filterBenDenByTuyen();
-            
-            document.getElementById('maXe').value = c.maXe ? (c.maXe._id || c.maXe) : '';
-            document.getElementById('benDen').value = c.benDen ? (c.benDen._id || c.benDen) : '';
-            document.getElementById('giaVe').value = c.giaVe;
-            document.getElementById('trangThai').value = c.trangThai;
-            document.getElementById('thoiGianKhoiHanh').value = formatDateTimeForInput(c.thoiGianKhoiHanh);
-            
-            // Load tài xế (truyền ID hiện tại vào để không bị ẩn chính tài xế đó)
-            const idTaiXe = c.maTaiXe ? (c.maTaiXe._id || c.maTaiXe) : null;
-            updateTaiXeDropdown(idTaiXe);
-            document.getElementById('maTaiXe').value = idTaiXe;
+            // --- THÊM ĐOẠN NÀY ĐỂ LOAD LẠI DỮ LIỆU ---
+            loadDropdowns().then(() => {
+                // Sau khi load xong mới điền dữ liệu vào form
+                document.getElementById('chuyenId').value = c._id;
+                
+                const idTuyen = c.maTuyen._id || c.maTuyen;
+                document.getElementById('maTuyen').value = idTuyen;
+                filterBenDenByTuyen();
+                
+                // Logic đặc biệt: Khi sửa, xe hiện tại của chuyến này ĐANG BẬN (do chính chuyến này).
+                // Nên loadDropdowns sẽ ẩn nó đi. Ta phải manually thêm nó lại vào dropdown để user thấy.
+                const currentXeId = c.maXe._id || c.maXe;
+                const selectXe = document.getElementById('maXe');
+                
+                // Kiểm tra xem xe hiện tại có trong dropdown không, nếu không thì thêm vào (để hiển thị)
+                if (!selectXe.querySelector(`option[value="${currentXeId}"]`)) {
+                    // Tìm thông tin xe trong data gốc (cần lưu dataXeGoc ra biến toàn cục nếu muốn làm kỹ)
+                    // Hoặc đơn giản là hiển thị xe hiện tại:
+                    const bienSo = c.maXe.bienSo || 'Xe hiện tại';
+                    const opt = document.createElement('option');
+                    opt.value = currentXeId;
+                    opt.text = `${bienSo} (Đang chọn)`;
+                    selectXe.add(opt);
+                }
+                
+                selectXe.value = currentXeId;
+                
+                // ... (Các phần điền dữ liệu khác giữ nguyên) ...
+                document.getElementById('benDen').value = c.benDen ? (c.benDen._id || c.benDen) : '';
+                document.getElementById('giaVe').value = c.giaVe;
+                document.getElementById('trangThai').value = c.trangThai;
+                document.getElementById('thoiGianKhoiHanh').value = formatDateTimeForInput(c.thoiGianKhoiHanh);
+                
+                const idTaiXe = c.maTaiXe ? (c.maTaiXe._id || c.maTaiXe) : null;
+                updateTaiXeDropdown(idTaiXe);
+                document.getElementById('maTaiXe').value = idTaiXe;
 
-            setMinDate(); // Vẫn chặn ngày quá khứ khi sửa (tùy nhu cầu, có thể bỏ nếu muốn sửa chuyến cũ)
-
-            document.getElementById('modalTitle').innerText = 'Cập Nhật Chuyến';
-            document.getElementById('btnSave').innerText = 'Cập nhật';
-            new bootstrap.Modal(document.getElementById('chuyenModal')).show();
+                setMinDate();
+                document.getElementById('modalTitle').innerText = 'Cập Nhật Chuyến';
+                document.getElementById('btnSave').innerText = 'Cập nhật';
+                new bootstrap.Modal(document.getElementById('chuyenModal')).show();
+            });
         }
 
         document.getElementById('chuyenForm').addEventListener('submit', async (e) => {

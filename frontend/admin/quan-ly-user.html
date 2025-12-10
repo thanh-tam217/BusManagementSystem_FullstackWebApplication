@@ -176,16 +176,28 @@
                                 <input type="text" class="form-control" id="soDienThoai" required>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label class="form-label" id="lblMatKhau">Mật khẩu</label>
                             <input type="password" class="form-control" id="matKhau" required>
+                        </div> -->
+
+                        <!-- Tạo mật khẩu random -->
+                        <div class="mb-3">
+                            <label class="form-label" id="lblMatKhau">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control fw-bold text-primary" id="matKhau" required placeholder="Bấm nút bên cạnh để tạo...">
+                                
+                                <button class="btn btn-outline-secondary" type="button" onclick="generateRandomPass()" title="Tạo mật khẩu ngẫu nhiên">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Random
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label">Vai trò</label>
                             <select class="form-select" id="vaiTro" onchange="toggleBenSelect()" required>
                                 <option value="KhachHang">Khách Hàng</option>
-                                <option value="AdminBenXe">Quản lý Bến Xe (AdminBenXe)</option>
+                                <option value="AdminBenXe">Quản lý Bến Xe</option>
                                 <option value="NhanVienBanVe">Nhân viên bán vé</option>
                                 <option value="TaiXe">Tài xế</option>
                                 <option value="AdminHeThong">Admin Hệ Thống</option>
@@ -372,6 +384,15 @@
             renderTable(allUsers);
         }
 
+        function generateRandomPass() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let result = "";
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('matKhau').value = result;
+        }
+
         // 6. Modal Add
         window.openAddModal = function() {
             document.getElementById('userForm').reset();
@@ -385,6 +406,8 @@
             document.getElementById('lblMatKhau').innerText = "Mật khẩu";
             document.getElementById('matKhau').placeholder = "";
             document.getElementById('group-chon-ben').style.display = 'none';
+
+            generateRandomPass();
             
             new bootstrap.Modal(document.getElementById('userModal')).show();
         }

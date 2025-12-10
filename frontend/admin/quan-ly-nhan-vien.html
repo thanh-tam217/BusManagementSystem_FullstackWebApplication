@@ -149,10 +149,22 @@
                             <label class="form-label">Số điện thoại</label>
                             <input type="text" class="form-control" id="soDienThoai" required>
                         </div>
+                        <!-- <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="text" class="form-control" id="matKhau" placeholder="Mật khẩu">
+                        </div> -->
+                        <!-- Tạo mật khẩu random -->
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu mới (Để trống nếu không đổi)</label>
-                            <input type="text" class="form-control" id="matKhau" placeholder="Nhập nếu muốn đổi pass">
+                            <label class="form-label" id="lblMatKhau">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control fw-bold text-primary" id="matKhau" required placeholder="Bấm nút bên cạnh để tạo...">
+                                
+                                <button class="btn btn-outline-secondary" type="button" onclick="generateRandomPass()" title="Tạo mật khẩu ngẫu nhiên">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Random
+                                </button>
+                            </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Chức vụ</label>
                             <select class="form-select" id="vaiTro" required>
@@ -295,6 +307,15 @@
             renderTable(allStaff);
         }
 
+        function generateRandomPass() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let result = "";
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('matKhau').value = result;
+        }
+
         // 4. Modal Add
         function openAddModal() {
             document.getElementById('staffForm').reset();
@@ -305,6 +326,9 @@
             
             document.getElementById('modalTitle').innerText = 'Thêm Nhân Sự Mới';
             document.getElementById('btnSave').innerText = 'Tạo tài khoản';
+            
+            generateRandomPass();
+
             new bootstrap.Modal(document.getElementById('staffModal')).show();
         }
 

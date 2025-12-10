@@ -39,11 +39,12 @@
                         <thead class="bg-light text-secondary">
                             <tr>
                                 <th class="p-3">Mã Vé</th>
-                                <th>Hành Trình</th>
+                                <th>Chuyến xe</th>
                                 <th>Ghế</th>
                                 <th>Tổng Tiền</th>
                                 <th>Ngày Đặt</th>
                                 <th>Trạng Thái</th>
+                                <th class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="ds-ve">
@@ -82,12 +83,13 @@
                     <li><a class="dropdown-item py-2" href="profile-customer.html"><i class="fa-solid fa-user-gear me-2 text-muted"></i> Thông tin cá nhân</a></li>
                     <li><a class="dropdown-item py-2" href="ve-cua-toi.html"><i class="fa-solid fa-ticket me-2 text-muted"></i> Vé của tôi</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-power-off me-2"></i> Đăng xuất</a></li>
+                    <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
                 </ul>
             </div>
         `;
 
-        // 1. Hàm tải danh sách vé
+        // Hàm tải danh sách vé
+
         async function loadVe() {
             try {
                 const token = localStorage.getItem('token');
@@ -98,30 +100,53 @@
                 const tbody = document.getElementById('ds-ve');
                 
                 if(data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-5 text-muted">Bạn chưa đặt vé nào.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center p-5 text-muted">Bạn chưa đặt vé nào.</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = '';
                 data.forEach(ve => {
-                    const benDi = ve.maChuyen.benKhoiHanh ? ve.maChuyen.benKhoiHanh.tenBen : 'Bến Đi';
-                    const benDen = ve.maChuyen.benDen ? ve.maChuyen.benDen.tenBen : 'Bến Đến';
-                    const time = new Date(ve.maChuyen.thoiGianKhoiHanh).toLocaleString('vi-VN');
+                    // Logic xử lý dữ liệu an toàn (tránh lỗi null)
+                    let benDi = '---', benDen = '---', time = '---';
+                    let statusClass = '';
+
+                    if (ve.maChuyen) {
+                        benDi = ve.maChuyen.benKhoiHanh ? ve.maChuyen.benKhoiHanh.tenBen : 'Bến Đi';
+                        benDen = ve.maChuyen.benDen ? ve.maChuyen.benDen.tenBen : 'Bến Đến';
+                        time = new Date(ve.maChuyen.thoiGianKhoiHanh).toLocaleString('vi-VN');
+                    } else {
+                        benDi = '<span class="text-danger">Chuyến đã xóa</span>';
+                        statusClass = 'table-danger';
+                    }
+
                     const seats = Array.isArray(ve.maGhe) ? ve.maGhe.join(', ') : ve.maGhe;
                     const gia = new Intl.NumberFormat('vi-VN').format(ve.tongTien);
 
-                    // Xử lý hiển thị trạng thái
+                    // Xử lý Trạng thái & Nút Hủy
                     let statusBadge = '';
-                    if (ve.trangThaiThanhToan === 'DaThanhToan') {
-                        statusBadge = '<span class="badge bg-success">Đã thanh toán</span>';
-                    } else if (ve.trangThaiThanhToan === 'Huy') {
+                    let actionBtn = '';
+
+                    if (ve.trangThaiThanhToan === 'Huy') {
                         statusBadge = '<span class="badge bg-danger">Đã hủy</span>';
+                        actionBtn = '<span class="text-muted small">---</span>';
+                        statusClass = 'table-secondary'; // Làm mờ dòng đã hủy
                     } else {
-                        statusBadge = '<span class="badge bg-warning text-dark">Chờ thanh toán</span>';
+                        // Nút Hủy chỉ hiện khi vé chưa hủy
+                        actionBtn = `
+                            <button class="btn btn-sm btn-outline-danger" onclick="cancelTicket('${ve._id}')" title="Hủy vé này">
+                                <i class="fa-solid fa-xmark"></i> Hủy
+                            </button>
+                        `;
+
+                        if (ve.trangThaiThanhToan === 'DaThanhToan') {
+                            statusBadge = '<span class="badge bg-success">Đã thanh toán</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-warning text-dark">Chờ thanh toán</span>';
+                        }
                     }
 
                     tbody.innerHTML += `
-                        <tr>
+                        <tr class="${statusClass}">
                             <td class="p-3"><span class="badge bg-light text-dark border">#${ve._id.slice(-6).toUpperCase()}</span></td>
                             <td>
                                 <div class="fw-bold">${benDi} <i class="fa-solid fa-arrow-right small mx-1 text-muted"></i> ${benDen}</div>
@@ -131,11 +156,40 @@
                             <td class="fw-bold text-danger">${gia} đ</td>
                             <td class="text-muted small">${new Date(ve.ngayDat).toLocaleDateString('vi-VN')}</td>
                             <td>${statusBadge}</td>
+                            <td class="text-center">${actionBtn}</td>
                         </tr>
                     `;
                 });
 
             } catch (e) { console.error(e); }
+        }
+
+        // 2. Hàm Hủy Vé 
+        async function cancelTicket(id) {
+            if (!confirm('Bạn có chắc chắn muốn HỦY vé này không? Hành động này không thể hoàn tác.')) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_URL}/ve-xe/huy/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Đã hủy vé thành công!');
+                    loadVe(); // Tải lại danh sách
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi kết nối server!');
+            }
         }
 
         // 2. Logic cập nhật vé mới nhất
@@ -179,22 +233,16 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
 
                 if (vnp_ResponseCode === '00') {
-                    // Bước 1: Cập nhật Database trước (Chờ cho xong)
+                    
                     await updateLatestTicketStatus('DaThanhToan');
                     
-                    // Bước 2: Thông báo
-                    alert("✅ Thanh toán VNPay thành công!");
+                    alert("Thanh toán VNPay thành công!");
                 } else {
-                    alert("❌ Thanh toán thất bại hoặc bị hủy.");
+                    alert("Thanh toán thất bại hoặc bị hủy.");
                 }
             }
-            
-            // Bước 3: Sau khi xử lý xong xuôi (hoặc không có param) mới tải danh sách hiển thị
             loadVe();
         }
-
-        // --- KHỞI CHẠY ---
-        // Chỉ gọi hàm check, không gọi loadVe() riêng lẻ nữa
         checkVNPayReturn();
 
     </script>

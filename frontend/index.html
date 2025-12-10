@@ -454,7 +454,7 @@
                         
                         <li><hr class="dropdown-divider"></li>
                         
-                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-power-off me-2"></i> Đăng xuất</a></li>
+                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
                     </ul>
                 </div>
             `;
@@ -465,6 +465,21 @@
         }
 
         async function loadTinh() {
+            const dateInput = document.getElementById('ngayDi');
+    
+            // 1. Lấy ngày hiện tại
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+            const dd = String(today.getDate()).padStart(2, '0');
+            
+            const currentDate = `${yyyy}-${mm}-${dd}`; // Định dạng YYYY-MM-DD
+
+            // 2. Set thuộc tính min = ngày hiện tại
+            dateInput.min = currentDate;
+            
+            // 3. (Tùy chọn) Set giá trị mặc định là hôm nay luôn cho tiện
+            dateInput.value = currentDate;
             try {
                 const res = await fetch(`${API_URL}/tinh-thanh`);
                 const data = await res.json();
@@ -582,8 +597,6 @@
                 const res = await fetch(url, { headers: headers });
                 const results = await res.json();
 
-                // Chỉ hiển thị chuyến Đang Chờ (Sắp chạy) cho khách đặt vé
-                // Admin Bến Xe có thể muốn xem hết, nhưng ở trang chủ thì chỉ nên hiện chuyến book được
                 const activeResults = results.filter(c => c.trangThai === 'DangCho');
 
                 if(activeResults.length === 0) { 
