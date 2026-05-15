@@ -1,4 +1,4 @@
-# 🚌 Bus Management System — Hệ Thống Quản Lý Xe Buýt
+# Bus Management System — Hệ Thống Quản Lý Xe Buýt
 
 <div align="center">
 
@@ -11,7 +11,7 @@ A full-stack web application for managing bus operations — routes, drivers, sc
 
 Ứng dụng web full-stack phục vụ quản lý hoạt động xe buýt — tuyến đường, tài xế, lịch trình, vé xe, và nhiều hơn nữa.
 
-[🇬🇧 English](#english) · [🇻🇳 Tiếng Việt](#tiếng-việt)
+[English](#english) · [Tiếng Việt](#tiếng-việt)
 
 </div>
 
